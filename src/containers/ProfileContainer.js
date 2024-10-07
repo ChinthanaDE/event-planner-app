@@ -1,23 +1,21 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, {useState} from 'react';
+import ProfilePresenter from '../components/ProfilePresenter';
 
 const ProfileContainer = () => {
+  const [userProfile, setUserProfile] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    mailingAddress: '',
+  });
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Profile</Text>
-    </View>
+    <ProfilePresenter
+      userProfile={userProfile}
+      setUserProfile={setUserProfile}
+    />
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  }
-});
 
 export default ProfileContainer;

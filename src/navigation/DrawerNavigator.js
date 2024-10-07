@@ -1,19 +1,19 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { NavigationContainer } from '@react-navigation/native';
-import EventContainer from '../containers/EventContainer';
-import ProfileContainer from '../containers/ProfileContainer';
+import TabNavigator from '../navigation/TabNavigator';
+import CustomDrawerContentView from '../components/CustomDrawerContentView';
 
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigator = () => {
   return (
-    <NavigationContainer>
-      <Drawer.Navigator initialRouteName="Events">
-        <Drawer.Screen name="Events" component={EventContainer} />
-        <Drawer.Screen name="Profile" component={ProfileContainer} />
-      </Drawer.Navigator>
-    </NavigationContainer>
+    <Drawer.Navigator drawerContent={props => <CustomDrawerContentView {...props} />}>
+      <Drawer.Screen
+        name="Drawer"
+        component={TabNavigator}
+        options={{ headerShown: false }}
+      />
+    </Drawer.Navigator>
   );
 };
 

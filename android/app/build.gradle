@@ -111,6 +111,15 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
     implementation project(':react-native-gesture-handler')
+    implementation project(':react-native-vector-icons')
+
+    // React Navigation dependencies for Android
+    implementation 'androidx.appcompat:appcompat:1.2.0'  // AppCompat library for backward compatibility
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0' // Used by navigation components
+    
+    // Optional dependencies for navigation
+    implementation project(':react-native-reanimated')  // Animation library for better performance in gestures
+    implementation project(':react-native-safe-area-context')  // Handles safe area for different devices
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -118,3 +127,4 @@ dependencies {
         implementation jscFlavor
     }
 }
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
