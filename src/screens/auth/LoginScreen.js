@@ -11,25 +11,35 @@ import CustomTextInput from '../../components/CustomTextInput';
 import CustomButton from '../../components/CustomButton';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import { useDispatch, useSelector } from 'react-redux';
+import { login, setError, clearError } from '../../redux/slices/authSlice';
 
 const LoginScreen = ({navigation}) => {
+  const dispatch = useDispatch();
+  const { isLoading, error } = useSelector((state) => state.auth);
+
+  const handleLogin = (values) => {
+    dispatch(login(values.email, values.password));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <View style={styles.headerContent}>
           <Text style={styles.title}>Welcome</Text>
           <Text style={styles.subtitle}>Welcome to your Portal</Text>
+          {error && <Text style={styles.errorText}>{error}</Text>}
         </View>
 
         <Formik
           initialValues={{email: '', password: ''}}
-          onSubmit={values => console.log(values)}>
+          onSubmit={handleLogin}>
           {({handleChange, handleSubmit, values}) => (
             <View>
               <CustomTextInput
                 label="Email"
                 icon={<EvilIcons name="envelope" size={24} color="gray" />}
-                placeholder="your.email@gmail.com"
+                placeholder="Enter Email"
                 value={values.email}
                 onChangeText={handleChange('email')}
               />

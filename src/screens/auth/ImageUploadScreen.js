@@ -3,10 +3,22 @@ import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import CustomButton from '../../components/CustomButton';
 import ProfileImage from '../../components/ProfileImageComponent';
 import useProfileImage from '../../hooks/useProfileImage';
+import { useDispatch } from 'react-redux';
+import { updateProfileImage } from '../../redux/slices/authSlice';
 
 const ImageUploadScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
   const { imageUri, selectImage } = useProfileImage();
   console.log("Image URI in ImageUploadScreen:", imageUri);
+
+  const handleNext = () => {
+    if (imageUri) {
+      dispatch(updateProfileImage(imageUri));
+      navigation.navigate('PersonalInfo');
+    } else {
+      console.log("Please select an image first.");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -27,7 +39,7 @@ const ImageUploadScreen = ({ navigation }) => {
           title="Next"
           showRightIcon={true}
           buttonStyle={{ width: '100%' }}
-          onPress={() => navigation.navigate('PersonalInfo')}
+          onPress={handleNext}
         />
       </View>
     </SafeAreaView>

@@ -3,8 +3,12 @@ import {View, Text, StyleSheet, SafeAreaView, ScrollView} from 'react-native';
 import {Formik} from 'formik';
 import CustomTextInput from '../../components/CustomTextInput';
 import CustomButton from '../../components/CustomButton';
+import { useDispatch, useSelector } from 'react-redux';
+import { updatePersonalInfo } from '../../redux/slices/authSlice';
 
 const PersonalInfoScreen = ({navigation}) => {
+  const dispatch = useDispatch();
+  const { personalInfo } = useSelector((state) => state.auth);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -15,13 +19,16 @@ const PersonalInfoScreen = ({navigation}) => {
 
         <Formik
           initialValues={{
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            address: '',
+            firstName: personalInfo?.firstName || '',
+            lastName: personalInfo?.lastName || '',
+            email: personalInfo?.email || '',
+            phone: personalInfo?.phone || '',
+            address: personalInfo?.address || '',
           }}
-          onSubmit={values => console.log(values)}>
+          onSubmit={(values) => {
+            dispatch(updatePersonalInfo(values));
+            navigation.navigate('Home');
+          }}>
           {({handleChange, handleSubmit, values}) => (
             <View>
               <CustomTextInput
