@@ -1,11 +1,12 @@
 import React from 'react';
 import {View, Image, StyleSheet, SafeAreaView, ScrollView} from 'react-native';
-import TextInput from '../components/CustomTextInput';
-import CustomButton from '../components/CustomButton';
 import {useNavigation} from '@react-navigation/native';
 import CustomHeader from './CustomHeader';
 import {ProfileButton, HeaderTitle} from './HeaderComponents';
 import ProfileImage from './ProfileImageComponent';
+import {Formik} from 'formik';
+import CustomTextInput from '../components/CustomTextInput';
+import CustomButton from '../components/CustomButton';
 
 const ProfilePresenter = ({userProfile, setUserProfile, handleUpdate}) => {
   // TODO :: setUserProfile and handleUpdate functinality
@@ -26,41 +27,57 @@ const ProfilePresenter = ({userProfile, setUserProfile, handleUpdate}) => {
         />
 
         <View style={styles.profileContainer}>
+          <View style={styles.ProfileImage}>
           <ProfileImage imageUrl={'https://via.placeholder.com/100'} size={120} />
-
-          <TextInput
-            label="First Name"
-            value={userProfile.firstName}
-            style={styles.grayBg}
-          />
-          <TextInput
-            label="Last Name"
-            value={userProfile.lastName}
-            style={styles.pinkBg}
-          />
-          <TextInput
-            label="Email"
-            value={userProfile.email}
-            style={styles.pinkBg}
-          />
-          <TextInput
-            label="Phone number"
-            value={userProfile.phone}
-            style={styles.pinkBg}
-          />
-          <TextInput
-            label="Mailing address"
-            value={userProfile.mailingAddress}
-            style={styles.pinkBg}
-          />
-
-          <CustomButton
-            title="Edit"
-            onPress={handleEdit}
-            buttonStyle={styles.editButton}
-            textStyle={styles.editButtonText}
-          />
+          </View>
+          <Formik
+          initialValues={{
+            firstName: userProfile.firstName,
+            lastName: userProfile.lastName,
+            email: userProfile.email,
+            phone: userProfile.phone,
+            address: userProfile.mailingAddress,
+          }}
+          onSubmit={values => console.log(values)}>
+          {({handleChange, handleSubmit, values}) => (
+            <View>
+              <CustomTextInput
+                label="First Name"
+                value={values.firstName}
+                onChangeText={handleChange('firstName')}
+              />
+              <CustomTextInput
+                label="Last Name"
+                value={values.lastName}
+                onChangeText={handleChange('lastName')}
+              />
+              <CustomTextInput
+                label="Email"
+                value={values.email}
+                onChangeText={handleChange('email')}
+              />
+              <CustomTextInput
+                label="Phone number"
+                value={values.phone}
+                onChangeText={handleChange('phone')}
+              />
+              <CustomTextInput
+                label="Mailing address"
+                value={values.address}
+                onChangeText={handleChange('address')}
+              />
+              <View style={styles.buttonsContainer}>
+                <CustomButton
+                  title="Edit"
+                  onPress={handleEdit}
+                  buttonStyle={{ width: '100%' }} 
+                />
+              </View>
+            </View>
+          )}
+        </Formik>
         </View>
+    
       </ScrollView>
     </SafeAreaView>
   );
@@ -73,7 +90,6 @@ const styles = StyleSheet.create({
   },
   profileContainer: {
     paddingHorizontal: 16,
-    alignItems: 'center',
     marginVertical: 24,
   },
   profilePic: {
@@ -155,6 +171,9 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: '#191C1E',
   },
+  ProfileImage:{
+    alignItems: 'center'
+  }
 });
 
 export default ProfilePresenter;
