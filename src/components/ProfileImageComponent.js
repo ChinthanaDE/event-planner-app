@@ -1,33 +1,26 @@
 import React from 'react';
-import {View, Image, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const ProfileImage = ({
-  imageUrl,
-  size = 120,
-  showCamera = false,
-  onImagePress,
-  style,
-  imageStyle,
-}) => {
+const ProfileImage = ({ imageUri, size = 120, showCamera = false, onImagePress }) => {
   const containerSize = size;
   const borderRadius = size / 2;
 
   return (
-    <View style={[styles.container, style]}>
-      <TouchableOpacity
-        onPress={onImagePress}
-        disabled={!onImagePress}
-        style={[
-          styles.imageContainer,
-          {
-            width: containerSize,
-            height: containerSize,
-            borderRadius: borderRadius,
-          },
-        ]}>
+    <TouchableOpacity
+      onPress={onImagePress}
+      style={[
+        styles.container,
+        {
+          width: containerSize,
+          height: containerSize,
+          borderRadius: borderRadius,
+        },
+      ]}
+    >
+      {imageUri ? (
         <Image
-          source={imageUrl ? {uri: imageUrl} : ''}
+          source={{ uri: imageUri }}
           style={[
             styles.profileImage,
             {
@@ -35,74 +28,50 @@ const ProfileImage = ({
               height: containerSize,
               borderRadius: borderRadius,
             },
-            imageStyle,
           ]}
         />
+      ) : (
+        <View style={[styles.placeholderContainer, { backgroundColor: '#F5F5F5' }]} />
+      )}
 
-        {showCamera && (
-          <View style={styles.cameraButtonContainer}>
-            <View style={styles.cameraButton}>
-            <Ionicons name="camera-outline" size={24} color="white" style={styles.cameraIcon} />
-            </View>
+      {showCamera && (
+        <View style={styles.cameraButtonContainer}>
+          <View style={styles.cameraButton}>
+            <Ionicons name="camera-outline" size={24} color="white" />
           </View>
-        )}
-      </TouchableOpacity>
-    </View>
+        </View>
+      )}
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  imageContainer: {
     position: 'relative',
-    backgroundColor: '#F5F5F5',
     overflow: 'hidden',
+    marginBottom: 24,
   },
   profileImage: {
     width: '100%',
     height: '100%',
   },
-  cameraButtonContainer: {
-    position: 'absolute',
+  placeholderContainer: {
     width: '100%',
     height: '100%',
+  },
+  cameraButtonContainer: {
+    ...StyleSheet.absoluteFillObject,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
   cameraButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     width: 40,
     height: 40,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  cameraIcon: {
-    fontSize: 24,
-  },
-  uploadHintContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-  },
-  dimensionsContainer: {
-    marginTop: 8,
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  dimensionsText: {
-    color: 'white',
-    fontSize: 12,
-    fontWeight: '500',
   },
 });
 

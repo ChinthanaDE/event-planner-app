@@ -1,26 +1,73 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {TouchableOpacity, Text, StyleSheet} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-const CustomButton = ({ title, onPress, buttonStyle, textStyle }) => (
-  <TouchableOpacity style={[styles.button, buttonStyle]} onPress={onPress}>
-    <Text style={[styles.text, textStyle]}>{title}</Text>
+const CustomButton = ({
+  title,
+  onPress,
+  buttonStyle,
+  textStyle,
+  type = 'primary',
+  showLeftIcon, 
+  showRightIcon,
+}) => (
+  <TouchableOpacity
+    style={[styles.button, styles[`${type}Button`], buttonStyle]}
+    onPress={onPress}>
+    {showLeftIcon && (
+      <Icon
+        name="arrow-back"
+        size={20}
+        color={styles[`${type}ButtonText`].color}
+        style={styles.iconLeft}
+      />
+    )}
+    <Text style={[styles.text, styles[`${type}ButtonText`], textStyle]}>
+      {title}
+    </Text>
+    {showRightIcon && (
+      <Icon
+        name="arrow-forward" 
+        size={20}
+        color={styles[`${type}ButtonText`].color}
+        style={styles.iconRight}
+      />
+    )}
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
-    button: {
-      width: '100%',
-      backgroundColor: '#E86C4F',
-      paddingVertical: 16,
-      borderRadius: 8,
-      alignItems: 'center',
-      marginTop: 16,
-    },
-    text: {
-      color: '#fff',
-      fontSize: 16,
-      fontWeight: '600',
-    },
-  });
+  button: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  primaryButton: {
+    backgroundColor: '#E97451',
+  },
+  secondaryButton: {
+    backgroundColor: 'rgba(218, 94, 66, 0.08)',
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  primaryButtonText: {
+    color: 'white',
+  },
+  secondaryButtonText: {
+    color: '#E97451',
+  },
+  iconLeft: {
+    marginRight: 8,
+  },
+  iconRight: {
+    marginLeft: 8,
+  },
+});
 
 export default CustomButton;
+
