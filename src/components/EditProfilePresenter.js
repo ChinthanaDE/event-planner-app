@@ -1,15 +1,11 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-} from 'react-native';
-import EditField from '../components/EditField';
+import {SafeAreaView, View, ScrollView, StyleSheet} from 'react-native';
+import CustomTextInput from '../components/CustomTextInput'; // Update this line
 import CustomHeader from '../components/CustomHeader';
 import {BackButton, HeaderTitle} from '../components/HeaderComponents';
 import ProfileImage from './ProfileImageComponent';
+import CustomButton from '../components/CustomButton';
+import useProfileImage from '../hooks/useProfileImage';
 
 const EditProfilePresenter = ({
   profile,
@@ -18,52 +14,57 @@ const EditProfilePresenter = ({
   navigation,
   onImagePress,
 }) => {
+  const {imageUri, selectImage} = useProfileImage();
+  console.log('Image URI in ImageUploadScreen:', imageUri);
   return (
     <SafeAreaView style={styles.container}>
       <CustomHeader
-        leftComponent={
-          <BackButton
-            onPress={() => navigation.goBack()}
-          />
-        }
+        leftComponent={<BackButton onPress={() => navigation.goBack()} />}
         centerComponent={<HeaderTitle title="Profile" />}
       />
       <ScrollView style={styles.content}>
+        <View style={styles.ProfileImage}>
         <ProfileImage
-          imageUrl={'https://via.placeholder.com/100'}
+          imageUri={imageUri}
           size={120}
           showCamera={true}
-          onImagePress={onImagePress}
+          onImagePress={selectImage}
         />
-        <EditField
+        </View>
+
+        <CustomTextInput
           label="First Name"
           value={profile.firstName}
           onChangeText={text => setProfile({...profile, firstName: text})}
         />
-        <EditField
+        <CustomTextInput
           label="Last Name"
           value={profile.lastName}
           onChangeText={text => setProfile({...profile, lastName: text})}
         />
-        <EditField
+        <CustomTextInput
           label="Email"
           value={profile.email}
           onChangeText={text => setProfile({...profile, email: text})}
         />
-        <EditField
+        <CustomTextInput
           label="Phone number"
           value={profile.phone}
           onChangeText={text => setProfile({...profile, phone: text})}
         />
-        <EditField
+        <CustomTextInput
           label="Mailing address"
           value={profile.mailingAddress}
           onChangeText={text => setProfile({...profile, mailingAddress: text})}
         />
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonsContainer}>
+          <CustomButton
+            title="Save"
+            onPress={handleSave}
+            buttonStyle={{width: '100%'}}
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -77,29 +78,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 16,
   },
-  profileImageContainer: {
-    alignItems: 'center',
-    marginBottom: 24,
-    position: 'relative',
-  },
-  profilePic: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
-  cameraButton: {
-    position: 'absolute',
-    bottom: '35%',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  cameraIcon: {
-    fontSize: 24,
-  },
   saveButton: {
     backgroundColor: '#E86C4F',
     padding: 16,
@@ -112,6 +90,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  ProfileImage: {
+    alignItems: 'center',
   },
 });
 
