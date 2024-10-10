@@ -6,14 +6,14 @@ const PostCard = ({post}) => {
   return (
     <View style={styles.cardContainer}>
       <Image
-        source={{uri: post.uri}}
+        source={{uri: post.thumbnailUrl}}
         style={styles.postImage}
         resizeMode="cover"
       />
       <View style={styles.postContent}>
-        <Text style={styles.postTitle}>{post.title}</Text>
+        <Text style={styles.postTitle} numberOfLines={1}>{post.title}</Text>
         <Text style={styles.postDescription} numberOfLines={2}>
-          {post.description}
+          {post.body || 'No description available'}
         </Text>
       </View>
     </View>

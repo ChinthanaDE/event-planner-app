@@ -1,12 +1,34 @@
 import React from 'react';
-import {View, Text, ScrollView, FlatList, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import EventHeader from '../components/EventHeader';
 import Organizer from '../components/Organizer';
 import PostCard from '../components/PostCard';
-import {eventData} from '../constants/event'
+import {useFetchEvents} from '../hooks/useFetchEvents';
+import {useFetchOrganizers} from '../hooks/useFetchOrganizers';
 
-const EventContainer = () => {
+const EventContainer = ({Event}) => {
+  const navigation = useNavigation();
+  const {events, loading: eventsLoading, error: eventsError} = useFetchEvents();
+  const {
+    organizers,
+    loading: organizersLoading,
+    error: organizersError,
+  } = useFetchOrganizers();
+
+  const handleViewAllPosts = () => {
+    navigation.navigate('PostList', { Event });
+  };
+
   const renderPostItem = ({item}) => (
     <View style={styles.cardWrapper}>
       <PostCard post={item} />
@@ -16,23 +38,37 @@ const EventContainer = () => {
   return (
     <View style={styles.container}>
       <ScrollView>
-        <EventHeader
-          images={eventData.images}
-          eventName={eventData.eventName}
-          location={eventData.location}
-        />
+        {eventsLoading ? (
+          <ActivityIndicator size="large" color="#0000ff" />
+        ) : eventsError ? (
+          <Text>{eventsError}</Text>
+        ) : (
+          <EventHeader
+            images={events.map(event => event.thumbnailUrl)}
+            eventName="Sample Event"
+            location="Event Location"
+          />
+        )}
 
         <View style={styles.contentContainer}>
           <Text style={styles.sectionTitle}>Organizers</Text>
 
-          {eventData.organizers.map((organizer, index) => (
-            <React.Fragment key={index}>
-              <Organizer {...organizer} />
-              {index < eventData.organizers.length - 1 && (
-                <View style={styles.separator} />
-              )}
-            </React.Fragment>
-          ))}
+          {organizersLoading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : organizersError ? (
+            <Text>{organizersError}</Text>
+          ) : (
+            organizers.map((organizer, index) => (
+              <React.Fragment key={index}>
+                <Organizer {...organizer} />
+                {index < organizers.length - 1 && (
+                  <View style={styles.separator} />
+                )}
+              </React.Fragment>
+            ))
+          )}
+
+          {/* Post Section */}
           <View style={styles.header}>
             <Text style={styles.postSectionTitle}>Photos</Text>
             <View style={styles.viewAllContainer}>
@@ -40,27 +76,30 @@ const EventContainer = () => {
               <Ionicons name="arrow-forward" size={24} color="#Db2424" />
             </View>
           </View>
+
           <View style={styles.postsSection}>
             <FlatList
-              data={eventData.posts}
+              data={events}
               renderItem={renderPostItem}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.id.toString()}
               horizontal
               showsHorizontalScrollIndicator={false}
               snapToAlignment="start"
               decelerationRate="fast"
               snapToInterval={316}
-              viewabilityConfig={{
-                itemVisiblePercentThreshold: 50,
-              }}
+              viewabilityConfig={{itemVisiblePercentThreshold: 50}}
               nestedScrollEnabled={true}
               style={styles.postList}
             />
           </View>
+
           <View style={styles.footer}>
-            <Text style={styles.postsCount}>{eventData.postCount}</Text>
+          <TouchableOpacity onPress={handleViewAllPosts} style={styles.viewAllButton}>
+            <Text style={styles.postsCount}>{events.length}</Text>
             <Text style={styles.postsLabel}>Posts</Text>
-          </View>
+            <Ionicons name="arrow-forward" size={24} color="#DB2424" />
+          </TouchableOpacity>
+        </View>
         </View>
       </ScrollView>
     </View>
@@ -125,9 +164,18 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#DB2424',
+    marginRight: 8,
   },
   postsLabel: {
-    fontSize: 14,
+    fontSize: 16,
+    marginRight: 8,
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    padding: 12,
+    borderRadius: 8,
   },
 });
 
