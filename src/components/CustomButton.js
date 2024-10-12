@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   secondaryButtonText: {
-    color: '#E97451',
+    color: '#000',
   },
   iconLeft: {
     marginRight: 8,

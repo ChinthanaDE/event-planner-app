@@ -5,18 +5,20 @@ import {
   ScrollView,
   FlatList,
   StyleSheet,
-  ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import EventHeader from '../components/EventHeader';
-import Organizer from '../components/Organizer';
-import PostCard from '../components/PostCard';
-import {useFetchEvents} from '../hooks/useFetchEvents';
-import {useFetchOrganizers} from '../hooks/useFetchOrganizers';
+import {useNavigation} from '@react-navigation/native';
+import EventHeader from '../../../components/EventHeader';
+import Organizer from '../../../components/Organizer';
+import PostCard from '../../../components/PostCard';
+import {useFetchEvents} from '../../../hooks/useFetchEvents';
+import {useFetchOrganizers} from '../../../hooks/useFetchOrganizers';
+import EventHeaderSkeleton from '../../../components/skeletons/EventHeaderSkeleton';
+import OrganizerSkeleton from '../../../components/skeletons/OrganizerSkeleton';
+import PostCardSkeleton from '../../../components/skeletons/PostCardSkeleton';
 
-const EventContainer = ({Event}) => {
+const EventScreen = ({Event}) => {
   const navigation = useNavigation();
   const {events, loading: eventsLoading, error: eventsError} = useFetchEvents();
   const {
@@ -26,7 +28,7 @@ const EventContainer = ({Event}) => {
   } = useFetchOrganizers();
 
   const handleViewAllPosts = () => {
-    navigation.navigate('PostList', { Event });
+    navigation.navigate('PostList', {events: events});
   };
 
   const renderPostItem = ({item}) => (
@@ -35,11 +37,35 @@ const EventContainer = ({Event}) => {
     </View>
   );
 
+  const renderOrganizerSkeletons = () => (
+    <>
+      <OrganizerSkeleton />
+      <View style={styles.separator} />
+      <OrganizerSkeleton />
+      <View style={styles.separator} />
+      <OrganizerSkeleton />
+    </>
+  );
+
+  const renderPostCardSkeletons = () => (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      <View style={styles.cardWrapper}>
+        <PostCardSkeleton />
+      </View>
+      <View style={styles.cardWrapper}>
+        <PostCardSkeleton />
+      </View>
+      <View style={styles.cardWrapper}>
+        <PostCardSkeleton />
+      </View>
+    </ScrollView>
+  );
+
   return (
     <View style={styles.container}>
       <ScrollView>
         {eventsLoading ? (
-          <ActivityIndicator size="large" color="#0000ff" />
+          <EventHeaderSkeleton />
         ) : eventsError ? (
           <Text>{eventsError}</Text>
         ) : (
@@ -54,7 +80,7 @@ const EventContainer = ({Event}) => {
           <Text style={styles.sectionTitle}>Organizers</Text>
 
           {organizersLoading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
+            renderOrganizerSkeletons()
           ) : organizersError ? (
             <Text>{organizersError}</Text>
           ) : (
@@ -78,28 +104,34 @@ const EventContainer = ({Event}) => {
           </View>
 
           <View style={styles.postsSection}>
-            <FlatList
-              data={events}
-              renderItem={renderPostItem}
-              keyExtractor={item => item.id.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              snapToAlignment="start"
-              decelerationRate="fast"
-              snapToInterval={316}
-              viewabilityConfig={{itemVisiblePercentThreshold: 50}}
-              nestedScrollEnabled={true}
-              style={styles.postList}
-            />
+            {eventsLoading ? (
+              renderPostCardSkeletons()
+            ) : (
+              <FlatList
+                data={events}
+                renderItem={renderPostItem}
+                keyExtractor={item => item.id.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                snapToAlignment="start"
+                decelerationRate="fast"
+                snapToInterval={316}
+                viewabilityConfig={{itemVisiblePercentThreshold: 50}}
+                nestedScrollEnabled={true}
+                style={styles.postList}
+              />
+            )}
           </View>
 
           <View style={styles.footer}>
-          <TouchableOpacity onPress={handleViewAllPosts} style={styles.viewAllButton}>
-            <Text style={styles.postsCount}>{events.length}</Text>
-            <Text style={styles.postsLabel}>Posts</Text>
-            <Ionicons name="arrow-forward" size={24} color="#DB2424" />
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              onPress={handleViewAllPosts}
+              style={styles.viewAllButton}>
+              <Text style={styles.postsCount}>{events.length}</Text>
+              <Text style={styles.postsLabel}>Posts</Text>
+              <Ionicons name="arrow-forward" size={24} color="#DB2424" />
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -175,8 +207,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
     padding: 12,
+
     borderRadius: 8,
   },
 });
 
-export default EventContainer;
+export default EventScreen;

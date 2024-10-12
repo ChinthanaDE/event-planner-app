@@ -12,7 +12,7 @@ export const ProfileButton = ({imageUrl, onPress = null}) => {
   const Container = onPress ? TouchableOpacity : View;
   return (
     <Container style={styles.profileContainer} {...(onPress && {onPress})}>
-      <Image source={{uri: imageUrl}} style={styles.profileImage} />
+     {imageUrl && <Image source={{uri: imageUrl}} style={styles.profileImage} />} 
     </Container>
   );
 };

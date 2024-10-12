@@ -1,33 +1,57 @@
-import 'react-native-gesture-handler';
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { Provider, useSelector } from 'react-redux';
-import store, { RootState } from './src/redux/store';
-import DrawerNavigator from './src/navigation/DrawerNavigator';
-import AuthNavigator from './src/navigation/AuthNavigator';
+import React, { useEffect } from 'react';
+import { Provider } from 'react-redux';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'react-native';
+import { auth } from './src/utils/firebaseConfig';
+import { useDispatch, useSelector } from 'react-redux';
+import RootNavigation from './src/navigation';
+import store from './src/redux/store';
+import { setUser, setLoading, checkAuthState } from './src/redux/slices/authSlice';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { AppDispatch } from './src/redux/store';
 
-function App(): React.JSX.Element {
-  return (
-    <Provider store={store}>
-      <AppNavigator />
-    </Provider>
-  );
+interface AuthStateManagerProps {
+  children: React.ReactNode;
 }
 
-const AppNavigator = () => {
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const registrationStep = useSelector((state: RootState) => state.auth.registrationStep);
+const AuthStateManager: React.FC<AuthStateManagerProps> = ({ children }) => {
+  const dispatch = useDispatch<AppDispatch>();
 
+  useEffect(() => {
+    const initializeAuth = async () => {
+      await dispatch(checkAuthState());
+      
+      const unsubscribe = auth().onAuthStateChanged(async user => {
+        if (user) {
+          await dispatch(checkAuthState());
+        } else {
+          dispatch(setUser(null));
+          dispatch(setLoading(false));
+        }
+      });
+
+      return unsubscribe;
+    };
+
+    initializeAuth();
+  }, [dispatch]);
+
+  return <>{children}</>;
+};
+
+const App: React.FC = () => {
   return (
-    <NavigationContainer>
-      {isAuthenticated ? (
-        <DrawerNavigator />
-      ) : (
-        <AuthNavigator registrationStep={registrationStep} /> //Todo: resolve the issue 
-      )}
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Provider store={store}>
+        <SafeAreaProvider>
+          <StatusBar barStyle="light-content" />
+          <AuthStateManager>
+            <RootNavigation />
+          </AuthStateManager>
+        </SafeAreaProvider>
+      </Provider>
+    </GestureHandlerRootView>
   );
 };
 
 export default App;
-
