@@ -4,7 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Organizer = ({name, email, avatarUrl}) => (
   <TouchableOpacity style={styles.organizerContainer}>
-    <Image source={{uri: avatarUrl}} style={styles.avatar} />
+    {avatarUrl && <Image source={{uri: avatarUrl}} style={styles.avatar} />}
     <View style={styles.organizerInfo}>
       <Text style={styles.organizerName}>{name}</Text>
       <Text style={styles.organizerEmail}>{email}</Text>

@@ -1,32 +1,39 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { DrawerContentScrollView } from '@react-navigation/drawer';
+import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
+import {useSelector, useDispatch} from 'react-redux';
+import {DrawerContentScrollView} from '@react-navigation/drawer';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {logoutUser} from '../redux/slices/authSlice';
 
-const CustomDrawerContentView = (props) => {
+const CustomDrawerContentView = props => {
+  const dispatch = useDispatch();
+  const {profileImageUrl, personalInfo, isLoading} = useSelector(
+    state => state.auth,
+  );
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContainer}>
+    <DrawerContentScrollView
+      {...props}
+      contentContainerStyle={styles.drawerContainer}>
       <View style={styles.profileSection}>
-        <Image
-          source={{ uri: 'https://via.placeholder.com/100' }}
-          style={styles.profileImage}
-        />
+     <Image source={{uri: profileImageUrl}} style={styles.profileImage} />
         <View style={styles.profileDetails}>
-          <Text style={styles.profileName}>{'Jane Cooper'}</Text>
-          <Text style={styles.profileEmail}>{'jane.c@gmail.com'}</Text>
+          <Text
+            style={
+              styles.profileName
+            }>{`${personalInfo?.firstName} ${personalInfo?.lastName}`}</Text>
+          <Text style={styles.profileEmail}>{personalInfo?.email}</Text>
         </View>
       </View>
       <View style={styles.drawerOptions}>
         <View style={styles.logoutContainer}>
           <TouchableOpacity
-            onPress={() => console.log('clicked')}
-            style={styles.logoutButton}
-          >
+            onPress={() => dispatch(logoutUser())}
+            style={styles.logoutButton}>
             <AntDesign
               name="logout"
               size={20}
               color="#Db2424"
-              style={[styles.logoutIcon, { transform: [{ rotate: '-180deg' }] }]}
+              style={[styles.logoutIcon, {transform: [{rotate: '-180deg'}]}]}
             />
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>

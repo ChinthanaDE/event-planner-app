@@ -1,47 +1,117 @@
+// import React from 'react';
+// import { createStackNavigator } from '@react-navigation/stack';
+// import { useSelector } from 'react-redux';
+
+// import LoginScreen from '../screens/auth/logging/LoginScreen';
+// import SignUpScreen from '../screens/auth/logging/SignUpScreen';
+// import ImageUploadScreen from '../screens/auth/onboarding/ImageUploadScreen';
+// import PersonalInfoScreen from '../screens/auth/onboarding/PersonalInfoScreen';
+
+// const Stack = createStackNavigator();
+
+// const AuthNavigator = () => {
+//   const registrationStep = useSelector(state => state.auth.registrationStep);
+//   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+
+//   const getScreens = () => {
+//     if (!isAuthenticated) {
+//       return (
+//         <>
+//           <Stack.Screen name="Login" component={LoginScreen} />
+//           <Stack.Screen name="SignUp" component={SignUpScreen} />
+//         </>
+//       );
+//     } else {
+//       return (
+//         <>
+//           <Stack.Screen name="ImageUpload" component={ImageUploadScreen} />
+//           <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
+//         </>
+//       );
+//     }
+//   };
+
+//   const getInitialRouteName = () => {
+//     switch (registrationStep) {
+//       case 1:
+//         return 'SignUp';
+//       case 2:
+//         return 'ImageUpload';
+//       case 3:
+//         return 'PersonalInfo';
+//       default:
+//         return 'Login';
+//     }
+//   };
+
+//   return (
+//     <Stack.Navigator
+//       initialRouteName={getInitialRouteName()}
+//       screenOptions={{
+//         headerShown: false,
+//         cardStyle: { backgroundColor: '#191C1E' },
+//       }}>
+//       {getScreens()}
+//     </Stack.Navigator>
+//   );
+// };
+
+// export default AuthNavigator;
 import React from 'react';
-import {createStackNavigator} from '@react-navigation/stack';
-import {useSelector} from 'react-redux';
+import { createStackNavigator } from '@react-navigation/stack';
+import { useSelector } from 'react-redux';
 
-import LoginScreen from '../screens/auth/LoginScreen';
-import SignUpScreen from '../screens/auth/SignUpScreen';
-import ImageUploadScreen from '../screens/auth/ImageUploadScreen';
-import PersonalInfoScreen from '../screens/auth/PersonalInfoScreen';
+import LoginScreen from '../screens/auth/logging/LoginScreen';
+import SignUpScreen from '../screens/auth/logging/SignUpScreen';
+import ImageUploadScreen from '../screens/auth/onboarding/ImageUploadScreen';
+import PersonalInfoScreen from '../screens/auth/onboarding/PersonalInfoScreen';
 
-const AuthStack = createStackNavigator();
+const Stack = createStackNavigator();
 
 const AuthNavigator = () => {
-  const { hasCompletedRegistration } = useSelector(state => state.auth);
   const registrationStep = useSelector(state => state.auth.registrationStep);
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+
+  const getScreens = () => {
+    if (!isAuthenticated) {
+      return (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Stack.Screen name="ImageUpload" component={ImageUploadScreen} />
+          <Stack.Screen name="PersonalInfo" component={PersonalInfoScreen} />
+        </>
+      );
+    }
+  };
+
+  const getInitialRouteName = () => {
+    switch (registrationStep) {
+      case 1:
+        return 'SignUp';
+      case 2:
+        return 'ImageUpload';
+      case 3:
+        return 'PersonalInfo';
+      default:
+        return 'Login';
+    }
+  };
 
   return (
-    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
-      {registrationStep === 0 && (
-        <AuthStack.Screen name="Login" component={LoginScreen} />
-      )}
-      {registrationStep === 1 && (
-        <AuthStack.Screen name="SignUp" component={SignUpScreen} />
-      )}
-      {!hasCompletedRegistration && (
-        <>
-          {registrationStep === 2 && (
-            <AuthStack.Screen
-              name="ImageUploadScreen"
-              component={ImageUploadScreen}
-            />
-          )}
-          {registrationStep === 3 && (
-            <AuthStack.Screen
-              name="PersonalInfo"
-              component={PersonalInfoScreen}
-            />
-          )}
-        </>
-      )}
-      {/* Fallback screen if no conditions are met */}
-      {registrationStep < 0 || registrationStep > 3 && (
-        <AuthStack.Screen name="Login" component={LoginScreen} />
-      )}
-    </AuthStack.Navigator>
+    <Stack.Navigator
+      initialRouteName={getInitialRouteName()}
+      screenOptions={{
+        headerShown: false,
+        cardStyle: { backgroundColor: '#191C1E' },
+      }}>
+      {getScreens()}
+    </Stack.Navigator>
   );
 };
 

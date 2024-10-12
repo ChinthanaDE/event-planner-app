@@ -1,7 +1,8 @@
-import { initializeApp } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { initializeApp } from '@react-native-firebase/app';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
 import analytics from '@react-native-firebase/analytics';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { 
   API_KEY, 
@@ -23,13 +24,10 @@ const firebaseConfig = {
   measurementId: MEASUREMENT_ID
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
-
-// Initialize analytics
-export const analyticsInstance = analytics();
+// Export Firebase services
+export { auth, firestore, storage, analytics };
 
 export default app;
