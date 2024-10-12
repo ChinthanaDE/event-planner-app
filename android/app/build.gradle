@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+apply plugin: 'com.google.gms.google-services'
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -110,6 +111,21 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
+    implementation platform('com.google.firebase:firebase-bom:33.4.0')
+    implementation 'com.google.firebase:firebase-analytics'
+    implementation "com.google.firebase:firebase-auth"
+    implementation "com.google.firebase:firebase-firestore"
+    implementation "com.google.firebase:firebase-storage"
+    implementation project(':react-native-gesture-handler')
+    implementation project(':react-native-vector-icons')
+
+    // React Navigation dependencies for Android
+    implementation 'androidx.appcompat:appcompat:1.2.0'  // AppCompat library for backward compatibility
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0' // Used by navigation components
+    
+    // Optional dependencies for navigation
+    implementation project(':react-native-reanimated')  // Animation library for better performance in gestures
+    implementation project(':react-native-safe-area-context')  // Handles safe area for different devices
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
@@ -117,3 +133,4 @@ dependencies {
         implementation jscFlavor
     }
 }
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
