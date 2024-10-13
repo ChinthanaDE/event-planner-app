@@ -38,7 +38,7 @@ const CustomDrawerContentView = props => {
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.versionText}>Version 0.0.1</Text>
+        <Text style={styles.versionText}>Version 1.0.0</Text>
       </View>
     </DrawerContentScrollView>
   );
