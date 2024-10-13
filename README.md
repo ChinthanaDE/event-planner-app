@@ -77,3 +77,93 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+
+# Event Planner App - Firebase Functions
+
+This repository contains the Firebase Cloud Functions for the Event Planner App. These functions handle backend operations, potentially including sending notifications and managing messaging campaigns.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+- Node.js (version 14 or later recommended)
+- npm (comes with Node.js)
+- Firebase CLI (`npm install -g firebase-tools`)
+
+## Setup
+
+1. Clone this repository:
+   ```
+   git clone <your-repo-url>
+   cd EventPlannerApp
+   ```
+
+2. Initialize Firebase in your project:
+   ```
+   firebase init
+   ```
+   - Select "Functions" when prompted for features to set up.
+   - Choose "Use an existing project" and select your Firebase project (e.g., "eventapp-ef571 (EventApp)").
+   - Select JavaScript as the language for Cloud Functions.
+   - Choose whether to use ESLint (recommended for code quality).
+   - Choose whether to install dependencies now.
+
+3. Navigate to the functions directory:
+   ```
+   cd functions
+   ```
+
+4. Install dependencies if you haven't already:
+   ```
+   npm install
+   ```
+
+## Implementing Functions
+
+1. Open `functions/index.js` in your code editor.
+
+2. Implement your Cloud Functions. For example:
+   ```javascript
+   const functions = require('firebase-functions');
+   const admin = require('firebase-admin');
+   const moment = require("moment-timezone");
+   admin.initializeApp();
+
+   exports.sendNotification = functions.https.onCall((data, context) => {
+     // Implement notification logic here
+   });
+   ```
+
+## Local Development
+
+1. To serve functions locally for testing:
+   ```
+   firebase emulators:start --only functions
+   ```
+
+2. To run linting (if ESLint is set up):
+   ```
+   npm run lint
+   ```
+
+## Deployment
+
+To deploy your functions to Firebase:
+```
+firebase deploy --only functions
+```
+
+## Troubleshooting
+
+- If you encounter permission issues, ensure you're logged in:
+  ```
+  firebase login
+  ```
+- For deployment issues, check your project's billing status and ensure you're on the Blaze plan for outbound network requests.
+
+## Additional Resources
+
+- [Firebase Cloud Functions Documentation](https://firebase.google.com/docs/functions)
+- [Firebase CLI Reference](https://firebase.google.com/docs/cli)
+
+For any other issues or questions, please open an issue in this repository.
