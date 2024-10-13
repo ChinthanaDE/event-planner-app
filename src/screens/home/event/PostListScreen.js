@@ -109,7 +109,7 @@ const PostListScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       <CustomHeader
         leftComponent={<BackButton onPress={() => navigation.goBack()} />}
-        centerComponent={<HeaderTitle title="Edit Profile" />}
+        centerComponent={<HeaderTitle title="Post List" />}
       />
       <FlatList
         data={posts}
