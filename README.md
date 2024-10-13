@@ -77,3 +77,264 @@ To learn more about React Native, take a look at the following resources:
 - [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
 - [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
 - [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+
+# Event Planner App - React Native with Firebase
+
+This README guides you through setting up a React Native project integrated with Firebase, including Authentication, Firestore, and Storage.
+
+## Prerequisites
+
+- Node.js (latest stable version)
+- npm or Yarn
+- React Native CLI
+- Xcode (for iOS development)
+- Android Studio (for Android development)
+
+## Project Setup
+
+1. Create a new React Native project:
+   ```
+   npx react-native init EventPlannerApp
+   cd EventPlannerApp
+   ```
+
+2. Install necessary dependencies:
+   ```
+   npm install @react-native-firebase/app @react-native-firebase/auth @react-native-firebase/firestore @react-native-firebase/storage
+   ```
+
+## Firebase Console Setup
+
+1. Go to the [Firebase Console](https://console.firebase.google.com/).
+
+2. Click "Add project" and follow the steps to create a new Firebase project.
+
+3. Once your project is created, click "Add app" and choose the iOS and Android platforms.
+
+4. Follow the setup instructions for each platform:
+   - For iOS: Download the `GoogleService-Info.plist` file.
+   - For Android: Download the `google-services.json` file.
+
+5. Place these files in your React Native project:
+   - iOS: `/ios/EventPlannerApp/GoogleService-Info.plist`
+   - Android: `/android/app/google-services.json`
+
+## iOS Setup
+
+1. In your `ios/Podfile`, add the following lines:
+   ```ruby
+   pod 'Firebase/Core', '~> 8.0.0'
+   pod 'Firebase/Auth', '~> 8.0.0'
+   pod 'Firebase/Firestore', '~> 8.0.0'
+   pod 'Firebase/Storage', '~> 8.0.0'
+   ```
+
+2. Install pods:
+   ```
+   cd ios && pod install && cd ..
+   ```
+
+## Android Setup
+
+1. In your `android/build.gradle`, add to buildscript and allprojects:
+   ```gradle
+   buildscript {
+     dependencies {
+       classpath 'com.google.gms:google-services:4.3.10'
+     }
+   }
+   ```
+
+2. In your `android/app/build.gradle`, add:
+   ```gradle
+   apply plugin: 'com.google.gms.google-services'
+   ```
+
+## Firebase Configuration
+
+Create a file `src/firebaseConfig.js`:
+
+```javascript
+import { initializeApp } from '@react-native-firebase/app';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import storage from '@react-native-firebase/storage';
+
+const firebaseConfig = {
+  // Your web app's Firebase configuration
+};
+
+const app = initializeApp(firebaseConfig);
+
+export { auth, firestore, storage };
+export default app;
+```
+
+Replace the `firebaseConfig` object with your actual Firebase configuration from the Firebase Console.
+
+## Usage Examples
+
+### Authentication
+
+```javascript
+import { auth } from './src/firebaseConfig';
+
+// Sign Up
+auth()
+  .createUserWithEmailAndPassword(email, password)
+  .then(() => console.log('User account created & signed in!'));
+
+// Sign In
+auth()
+  .signInWithEmailAndPassword(email, password)
+  .then(() => console.log('User signed in!'));
+```
+
+### Firestore
+
+```javascript
+import { firestore } from './src/firebaseConfig';
+
+// Add a document
+firestore()
+  .collection('Users')
+  .add({
+    name: 'John Doe',
+    age: 30,
+  })
+  .then(() => console.log('User added!'));
+
+// Read documents
+firestore()
+  .collection('Users')
+  .get()
+  .then(querySnapshot => {
+    querySnapshot.forEach(documentSnapshot => {
+      console.log('User ID: ', documentSnapshot.id, documentSnapshot.data());
+    });
+  });
+```
+
+### Storage
+
+```javascript
+import { storage } from './src/firebaseConfig';
+
+// Upload file
+const reference = storage().ref('black-t-shirt-sm.png');
+await reference.putFile(pathToFile);
+
+// Download URL
+const url = await storage()
+  .ref('black-t-shirt-sm.png')
+  .getDownloadURL();
+```
+
+## Security Rules
+
+Remember to set up security rules in the Firebase Console for Firestore and Storage to secure your data.
+
+## Environment Variables
+
+For added security, consider using environment variables to store your Firebase config. You can use a package like `react-native-dotenv` for this purpose.
+
+## Running Your App
+
+- iOS: `npx react-native run-ios`
+- Android: `npx react-native run-android`
+
+## Troubleshooting
+
+- If you encounter build errors, ensure all dependencies are correctly installed and linked.
+- For iOS, try cleaning the build folder: `cd ios && rm -rf build && cd ..`
+- For Android, try cleaning the gradle build: `cd android && ./gradlew clean && cd ..`
+
+
+# Event Planner App - Firebase Functions
+
+This repository contains the Firebase Cloud Functions for the Event Planner App. These functions handle backend operations, potentially including sending notifications and managing messaging campaigns.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+- Node.js (version 14 or later recommended)
+- npm (comes with Node.js)
+- Firebase CLI (`npm install -g firebase-tools`)
+
+## Setup
+
+1. Clone this repository:
+   ```
+   git clone <your-repo-url>
+   cd EventPlannerApp
+   ```
+
+2. Initialize Firebase in your project:
+   ```
+   firebase init
+   ```
+   - Select "Functions" when prompted for features to set up.
+   - Choose "Use an existing project" and select your Firebase project (e.g., "eventapp-ef571 (EventApp)").
+   - Select JavaScript as the language for Cloud Functions.
+   - Choose whether to use ESLint (recommended for code quality).
+   - Choose whether to install dependencies now.
+
+3. Navigate to the functions directory:
+   ```
+   cd functions
+   ```
+
+4. Install dependencies if you haven't already:
+   ```
+   npm install
+   ```
+
+## Implementing Functions
+
+1. Open `functions/index.js` in your code editor.
+
+2. Implement your Cloud Functions. For example:
+   ```javascript
+   const functions = require('firebase-functions');
+   const admin = require('firebase-admin');
+   const moment = require("moment-timezone");
+   admin.initializeApp();
+
+   exports.sendNotification = functions.https.onCall((data, context) => {
+     // Implement notification logic here
+   });
+   ```
+
+## Local Development
+
+1. To serve functions locally for testing:
+   ```
+   firebase emulators:start --only functions
+   ```
+
+2. To run linting (if ESLint is set up):
+   ```
+   npm run lint
+   ```
+
+## Deployment
+
+To deploy your functions to Firebase:
+```
+firebase deploy --only functions
+```
+
+## Troubleshooting
+
+- If you encounter permission issues, ensure you're logged in:
+  ```
+  firebase login
+  ```
+- For deployment issues, check your project's billing status and ensure you're on the Blaze plan for outbound network requests.
+
+## Additional Resources
+
+- [Firebase Cloud Functions Documentation](https://firebase.google.com/docs/functions)
+- [Firebase CLI Reference](https://firebase.google.com/docs/cli)
+
+For any other issues or questions, please open an issue in this repository.
