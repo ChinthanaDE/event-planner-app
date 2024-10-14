@@ -104,6 +104,19 @@ android {
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            shrinkResources true  // Removes unused resources
+            minifyEnabled true    // Enables code shrinking and obfuscation
+            debuggable false
+
+            applicationVariants.all { variant ->
+                variant.outputs.all { output ->
+                    def version = variant.versionName
+                    def buildType = variant.buildType.name
+                    def appName = "EventApp"
+
+                    outputFileName = "${appName}-v${version}-${buildType}.apk"
+                }
+            }
         }
     }
 }
