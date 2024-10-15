@@ -1,7 +1,7 @@
 module.exports = {
   presets: ['module:@react-native/babel-preset'],
   plugins: [
-    'react-native-reanimated/plugin', // Keep this if it's in both configs
+    'react-native-reanimated/plugin',
     [
       'module:react-native-dotenv',
       {
@@ -9,5 +9,6 @@ module.exports = {
         path: '.env',
       },
     ],
+    ['@babel/plugin-transform-react-jsx'],
   ],
 };
