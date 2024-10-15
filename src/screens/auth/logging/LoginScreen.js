@@ -11,7 +11,6 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Formik} from 'formik';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import Feather from 'react-native-vector-icons/Feather';
-import * as Yup from 'yup';
 import CustomTextInput from '../../../components/CustomTextInput';
 import CustomButton from '../../../components/CustomButton';
 import {login, clearError} from '../../../redux/slices/authSlice';
@@ -20,15 +19,7 @@ import {
   WELCOME_SUBTITLE,
   RESTORE_PASSWORD,
 } from '../../../constants/constants';
-
-const LoginSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
-  password: Yup.string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
-});
+import { LoginSchema } from '../../../utils/validationSchema'; 
 
 const LoginScreen = ({navigation}) => {
   const dispatch = useDispatch();
