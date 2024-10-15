@@ -1,4 +1,3 @@
-// jest.config.js
 module.exports = {
   preset: 'react-native',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
@@ -6,12 +5,12 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   moduleDirectories: ['node_modules', 'src'],
-  setupFiles: ['<rootDir>/jest.setup.js'],
+  setupFiles: ['./jest.setup.js'],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(react-native|@react-native|@react-navigation|react-navigation|@react-native-community|react-native-vector-icons|react-redux)/)',
+    'node_modules/(?!(@react-native|react-native|@react-navigation|react-navigation|@react-native-community|react-native-vector-icons|react-redux|@react-native-firebase)/)',
   ],
   testPathIgnorePatterns: [
     '<rootDir>/node_modules/',

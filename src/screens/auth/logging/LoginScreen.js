@@ -48,7 +48,7 @@ const LoginScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#Db2424" />
+          <ActivityIndicator size="large" color="#Db2424" testID="loading-indicator"/>
         </View>
       ) : (
         <View style={styles.content}>
