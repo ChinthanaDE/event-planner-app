@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {Formik} from 'formik';
-import * as Yup from 'yup';
 import CustomTextInput from '../../../components/CustomTextInput';
 import CustomHeader from '../../../components/CustomHeader';
 import {BackButton, HeaderTitle} from '../../../components/HeaderComponents';
@@ -24,14 +23,7 @@ import {
 } from '../../../redux/slices/authSlice';
 import useProfileImage from '../../../hooks/useProfileImage';
 import {POST_LIST_TITLE} from '../../../constants/constants';
-
-const PersonalInfoSchema = Yup.object().shape({
-  firstName: Yup.string().required('First name is required'),
-  lastName: Yup.string().required('Last name is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  phone: Yup.string().matches(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
-  address: Yup.string().required('Address is required'),
-});
+import {PersonalInfoSchema} from '../../../utils/validationSchema'
 
 const ProfileEditScreen = ({navigation}) => {
   const dispatch = useDispatch();
