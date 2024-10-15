@@ -8,24 +8,12 @@ import {
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {Formik} from 'formik';
-import * as Yup from 'yup';
 import CustomTextInput from '../../../components/CustomTextInput';
 import CustomButton from '../../../components/CustomButton';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import {signup, setError, clearError} from '../../../redux/slices/authSlice';
 import {WELCOME_TITLE, WELCOME_SUBTITLE} from '../../../constants/constants';
-
-const SignUpSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
-  password: Yup.string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
-  confirmPassword: Yup.string()
-    .oneOf([Yup.ref('password'), null], 'Passwords must match')
-    .required('Confirm password is required'),
-});
+import {SignUpSchema} from '../../../utils/validationSchema'
 
 const SignUpScreen = ({navigation}) => {
   const dispatch = useDispatch();

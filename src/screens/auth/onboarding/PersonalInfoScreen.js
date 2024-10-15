@@ -11,19 +11,11 @@ import {
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {Formik} from 'formik';
-import * as Yup from 'yup';
 import CustomTextInput from '../../../components/CustomTextInput';
 import CustomButton from '../../../components/CustomButton';
 import {submitPersonalInfo, clearError} from '../../../redux/slices/authSlice';
 import {PERSONAL_INFO, PERSONAL_INFO_SUB} from '../../../constants/constants';
-
-const PersonalInfoSchema = Yup.object().shape({
-  firstName: Yup.string().required('First name is required'),
-  lastName: Yup.string().required('Last name is required'),
-  email: Yup.string().email('Invalid email').required('Email is required'),
-  phone: Yup.string().matches(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
-  address: Yup.string().required('Address is required'),
-});
+import {PersonalInfoSchema} from '../../../utils/validationSchema'
 
 const PersonalInfoScreen = ({navigation}) => {
   const dispatch = useDispatch();
