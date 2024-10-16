@@ -4,6 +4,11 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import LoginScreen from '../../../screens/auth/logging/LoginScreen';
 import authReducer, { login, clearError } from '../../../redux/slices/authSlice';
+import { auth } from '../../../utils/firebaseConfig';
+
+jest.mock('../../../utils/firebaseConfig', () => ({
+  auth: jest.fn(),
+}));
 
 const mockNavigation = {
   navigate: jest.fn(),
@@ -28,6 +33,9 @@ describe('LoginScreen', () => {
       },
     });
     store.dispatch = jest.fn(store.dispatch);
+
+    auth.mockReset();
+    mockNavigation.navigate.mockReset();
   });
 
   it('renders correctly', () => {
@@ -100,5 +108,54 @@ describe('LoginScreen', () => {
     );
 
     expect(getByTestId('loading-indicator')).toBeTruthy();
+  });
+
+  it('should handle successful login with Firebase', async () => {
+    const mockSignInWithEmailAndPassword = jest.fn().mockResolvedValue({
+      user: { uid: '123456', email: 'chinthanadesilva@gmail.com' },
+    });
+    auth.mockReturnValue({
+      signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+    });
+
+    const { getByPlaceholderText, getByText } = render(
+      <Provider store={store}>
+        <LoginScreen navigation={mockNavigation} />
+      </Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter Email'), 'chinthanadesilva@gmail.com');
+    fireEvent.changeText(getByPlaceholderText('Enter Password'), '123456');
+    fireEvent.press(getByText('Login'));
+
+    await waitFor(() => {
+      expect(store.dispatch).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith('chinthanadesilva@gmail.com', '123456');
+  });
+
+  it('should handle login failure with Firebase', async () => {
+    const mockSignInWithEmailAndPassword = jest.fn().mockRejectedValue(new Error('Invalid credentials'));
+    auth.mockReturnValue({
+      signInWithEmailAndPassword: mockSignInWithEmailAndPassword,
+    });
+
+    const { getByPlaceholderText, getByText } = render(
+      <Provider store={store}>
+        <LoginScreen navigation={mockNavigation} />
+      </Provider>
+    );
+
+    fireEvent.changeText(getByPlaceholderText('Enter Email'), 'china@gmail.com');
+    fireEvent.changeText(getByPlaceholderText('Enter Password'), '1234567');
+    fireEvent.press(getByText('Login'));
+
+    await waitFor(() => {
+      expect(store.dispatch).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    expect(mockSignInWithEmailAndPassword).toHaveBeenCalledWith('china@gmail.com', '1234567');
+    expect(getByText('Invalid credentials')).toBeTruthy();
   });
 });
