@@ -37,7 +37,7 @@ const SignUpScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#Db2424" />
+          <ActivityIndicator size="large" color="#Db2424" testID="loading-indicator" />
         </View>
       ) : (
         <View style={styles.content}>
@@ -80,7 +80,7 @@ const SignUpScreen = ({navigation}) => {
                 />
                 <CustomTextInput
                   label="Confirm Password"
-                  placeholder="Retype Password "
+                  placeholder="Retype Password"
                   icon={<EvilIcons name="lock" size={24} color="gray" />}
                   secureTextEntry
                   value={values.confirmPassword}
