@@ -1,30 +1,54 @@
 import React, {useEffect} from 'react';
 import {
   View,
+  SafeAreaView,
   Text,
   StyleSheet,
-  SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {Formik} from 'formik';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import CustomTextInput from '../../../components/CustomTextInput';
 import CustomButton from '../../../components/CustomButton';
-import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import {signup, setError, clearError} from '../../../redux/slices/authSlice';
 import {WELCOME_TITLE, WELCOME_SUBTITLE} from '../../../constants/constants';
-import {SignUpSchema} from '../../../utils/validationSchema'
+import {SignUpSchema} from '../../../utils/validationSchema';
+import {AppDispatch, RootState} from '../../../redux/store';
+import {
+  AuthStackParamList,
+  RootStackParamList,
+} from '../../../types/navigation';
+import {StackNavigationProp} from '@react-navigation/stack';
 
-const SignUpScreen = ({navigation}) => {
-  const dispatch = useDispatch();
-  const {isLoading, error} = useSelector(state => state.auth);
+type SignUpScreenNavigationProp = StackNavigationProp<
+  AuthStackParamList & RootStackParamList,
+  'SignUp'
+>;
 
-  const handleSignUp = values => {
+interface SignUpScreenProps {
+  navigation: SignUpScreenNavigationProp;
+}
+
+interface SignUpValues {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+const SignUpScreen: React.FC<SignUpScreenProps> = ({navigation}) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const {isLoading, error} = useSelector((state: RootState) => state.auth);
+
+  const handleSignUp = async (values: SignUpValues) => {
     if (values.password !== values.confirmPassword) {
       dispatch(setError('Passwords do not match'));
       return;
     }
-    dispatch(signup(values.email, values.password));
+    const success = await dispatch(signup(values.email, values.password));
+    if (success) {
+      navigation.navigate('ImageUpload');
+    }
   };
 
   useEffect(() => {
@@ -37,7 +61,11 @@ const SignUpScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#Db2424" testID="loading-indicator" />
+          <ActivityIndicator
+            size="large"
+            color="#Db2424"
+            testID="loading-indicator"
+          />
         </View>
       ) : (
         <View style={styles.content}>
@@ -51,43 +79,53 @@ const SignUpScreen = ({navigation}) => {
             )}
           </View>
 
-          <Formik
+          <Formik<SignUpValues>
             initialValues={{email: '', password: '', confirmPassword: ''}}
             validationSchema={SignUpSchema}
             onSubmit={handleSignUp}>
-            {({handleChange, handleSubmit, values, errors, touched}) => (
+            {({
+              handleChange,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+              handleBlur,
+            }) => (
               <View>
                 <CustomTextInput
                   label="Email"
                   icon={<EvilIcons name="envelope" size={24} color="gray" />}
-                  placeholder="Enter email"
+                  placeholder="Enter Email"
                   value={values.email}
                   error={errors.email}
                   errorText={errors.email}
                   touched={touched.email}
                   onChangeText={handleChange('email')}
+                  onBlur={handleBlur('email')}
                 />
                 <CustomTextInput
                   label="Password"
-                  placeholder="Enter password"
                   icon={<EvilIcons name="lock" size={24} color="gray" />}
+                  placeholder="Enter Password"
                   secureTextEntry
                   value={values.password}
                   error={errors.password}
                   errorText={errors.password}
                   touched={touched.password}
                   onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
                 />
                 <CustomTextInput
                   label="Confirm Password"
-                  placeholder="Retype Password"
                   icon={<EvilIcons name="lock" size={24} color="gray" />}
+                  placeholder="Confirm Password"
                   secureTextEntry
                   value={values.confirmPassword}
                   error={errors.confirmPassword}
                   errorText={errors.confirmPassword}
                   touched={touched.confirmPassword}
                   onChangeText={handleChange('confirmPassword')}
+                  onBlur={handleBlur('confirmPassword')}
                 />
                 <CustomButton
                   title="Sign Up"
@@ -98,8 +136,11 @@ const SignUpScreen = ({navigation}) => {
                 <CustomButton
                   title="Login"
                   showRightIcon={true}
+                  onPress={() => {
+                    dispatch(clearError());
+                    navigation.navigate('Login');
+                  }}
                   buttonStyle={{width: '100%'}}
-                  onPress={() => navigation.navigate('Login')}
                 />
               </View>
             )}
