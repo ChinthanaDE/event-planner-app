@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   SafeAreaView,
@@ -11,6 +11,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {Formik} from 'formik';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import {StackNavigationProp} from '@react-navigation/stack';
 import CustomTextInput from '../../../components/CustomTextInput';
 import CustomButton from '../../../components/CustomButton';
 import {login, clearError} from '../../../redux/slices/authSlice';
@@ -19,13 +20,27 @@ import {
   WELCOME_SUBTITLE,
   RESTORE_PASSWORD,
 } from '../../../constants/constants';
-import { LoginSchema } from '../../../utils/validationSchema'; 
+import {LoginSchema} from '../../../utils/validationSchema';
+import {AppDispatch, RootState} from '../../../redux/store';
+import {
+  AuthStackParamList,
+  RootStackParamList,
+} from '../../../types/navigation';
 
-const LoginScreen = ({navigation}) => {
-  const dispatch = useDispatch();
-  const {isLoading, error} = useSelector(state => state.auth);
+type LoginScreenNavigationProp = StackNavigationProp<
+  AuthStackParamList & RootStackParamList,
+  'Login'
+>;
 
-  const handleLogin = values => {
+interface LoginScreenProps {
+  navigation: LoginScreenNavigationProp;
+}
+
+const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const {isLoading, error} = useSelector((state: RootState) => state.auth);
+
+  const handleLogin = (values: {email: string; password: string}) => {
     dispatch(login(values.email, values.password));
   };
 
@@ -39,7 +54,11 @@ const LoginScreen = ({navigation}) => {
     <SafeAreaView style={styles.container}>
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#Db2424" testID="loading-indicator"/>
+          <ActivityIndicator
+            size="large"
+            color="#Db2424"
+            testID="loading-indicator"
+          />
         </View>
       ) : (
         <View style={styles.content}>
@@ -57,7 +76,14 @@ const LoginScreen = ({navigation}) => {
             initialValues={{email: '', password: ''}}
             validationSchema={LoginSchema}
             onSubmit={handleLogin}>
-            {({handleChange, handleSubmit, values, errors, touched}) => (
+            {({
+              handleChange,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+              handleBlur,
+            }) => (
               <View>
                 <CustomTextInput
                   label="Email"
@@ -68,6 +94,7 @@ const LoginScreen = ({navigation}) => {
                   errorText={errors.email}
                   touched={touched.email}
                   onChangeText={handleChange('email')}
+                  onBlur={handleBlur('email')}
                 />
                 <CustomTextInput
                   label="Password"
@@ -79,6 +106,7 @@ const LoginScreen = ({navigation}) => {
                   errorText={errors.password}
                   touched={touched.password}
                   onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
                 />
                 <TouchableOpacity style={styles.viewAllContainer}>
                   <Text style={styles.restorePassword}>{RESTORE_PASSWORD}</Text>
