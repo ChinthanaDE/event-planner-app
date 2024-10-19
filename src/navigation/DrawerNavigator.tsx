@@ -1,11 +1,12 @@
 import React from 'react';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import TabNavigator from './TabNavigator';
 import CustomDrawerContent from '../components/CustomDrawerContentView';
+import {DrawerParamList} from '../types/navigation';
 
-const Drawer = createDrawerNavigator();
+const Drawer = createDrawerNavigator<DrawerParamList>();
 
-const DrawerNavigator = () => {
+const DrawerNavigator: React.FC = () => {
   return (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawerContent {...props} />}

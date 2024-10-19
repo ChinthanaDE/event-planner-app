@@ -1,22 +1,29 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import EventStackNavigator from './EventStackNavigator';
 import ProfileStackNavigator from './ProfileStackNavigator';
 
-const Tab = createBottomTabNavigator();
+type TabParamList = {
+  Events: undefined;
+  Profile: undefined;
+};
 
-const TabNavigator = () => {
+const Tab = createBottomTabNavigator<TabParamList>();
+
+const TabNavigator: React.FC = () => {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
+      screenOptions={({route}) => ({
+        tabBarIcon: ({focused, color, size}) => {
+          let iconName: string;
 
           if (route.name === 'Events') {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'Profile') {
             iconName = 'grid-outline';
+          } else {
+            iconName = 'alert-circle-outline';
           }
 
           return <Ionicons name={iconName} size={size} color={color} />;
