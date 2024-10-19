@@ -1,8 +1,27 @@
 import React from 'react';
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ViewStyle,
+  ImageStyle,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const ProfileImage = ({ imageUri, size = 120, showCamera = false, onImagePress }) => {
+interface ProfileImageProps {
+  imageUri?: string | null;
+  size?: number;
+  showCamera?: boolean;
+  onImagePress: () => void;
+}
+
+const ProfileImage: React.FC<ProfileImageProps> = ({
+  imageUri,
+  size = 120,
+  showCamera = false,
+  onImagePress,
+}) => {
   const containerSize = size;
   const borderRadius = size / 2;
 
@@ -16,11 +35,10 @@ const ProfileImage = ({ imageUri, size = 120, showCamera = false, onImagePress }
           height: containerSize,
           borderRadius: borderRadius,
         },
-      ]}
-    >
+      ]}>
       {imageUri ? (
         <Image
-          source={{ uri: imageUri }}
+          source={{uri: imageUri}}
           style={[
             styles.profileImage,
             {
@@ -31,7 +49,9 @@ const ProfileImage = ({ imageUri, size = 120, showCamera = false, onImagePress }
           ]}
         />
       ) : (
-        <View style={[styles.placeholderContainer, { backgroundColor: '#F5F5F5' }]} />
+        <View
+          style={[styles.placeholderContainer, {backgroundColor: '#F5F5F5'}]}
+        />
       )}
 
       {showCamera && (
@@ -45,7 +65,15 @@ const ProfileImage = ({ imageUri, size = 120, showCamera = false, onImagePress }
   );
 };
 
-const styles = StyleSheet.create({
+interface Styles {
+  container: ViewStyle;
+  profileImage: ImageStyle;
+  placeholderContainer: ViewStyle;
+  cameraButtonContainer: ViewStyle;
+  cameraButton: ViewStyle;
+}
+
+const styles = StyleSheet.create<Styles>({
   container: {
     position: 'relative',
     overflow: 'hidden',

@@ -16,6 +16,7 @@ interface CustomButtonProps {
   type?: 'primary' | 'secondary';
   showLeftIcon?: boolean;
   showRightIcon?: boolean;
+  disabled?: boolean;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -26,26 +27,47 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   type = 'primary',
   showLeftIcon,
   showRightIcon,
+  disabled = false,
 }) => (
   <TouchableOpacity
-    style={[styles.button, styles[`${type}Button`], buttonStyle]}
-    onPress={onPress}>
+    style={[
+      styles.button,
+      styles[`${type}Button`],
+      disabled && styles.disabledButton,
+      buttonStyle,
+    ]}
+    onPress={onPress}
+    disabled={disabled}>
     {showLeftIcon && (
       <Icon
         name="arrow-back"
         size={20}
-        color={styles[`${type}ButtonText`].color}
+        color={
+          disabled
+            ? styles.disabledButtonText.color
+            : styles[`${type}ButtonText`].color
+        }
         style={styles.iconLeft}
       />
     )}
-    <Text style={[styles.text, styles[`${type}ButtonText`], textStyle]}>
+    <Text
+      style={[
+        styles.text,
+        styles[`${type}ButtonText`],
+        disabled && styles.disabledButtonText,
+        textStyle,
+      ]}>
       {title}
     </Text>
     {showRightIcon && (
       <Icon
         name="arrow-forward"
         size={20}
-        color={styles[`${type}ButtonText`].color}
+        color={
+          disabled
+            ? styles.disabledButtonText.color
+            : styles[`${type}ButtonText`].color
+        }
         style={styles.iconRight}
       />
     )}
@@ -67,6 +89,9 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: 'rgba(218, 94, 66, 0.08)',
   },
+  disabledButton: {
+    backgroundColor: '#cccccc',
+  },
   text: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -76,6 +101,9 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: '#000',
+  },
+  disabledButtonText: {
+    color: '#666666',
   },
   iconLeft: {
     marginRight: 8,
