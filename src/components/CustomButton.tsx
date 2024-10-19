@@ -1,14 +1,30 @@
 import React from 'react';
-import {TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const CustomButton = ({
+interface CustomButtonProps {
+  title: string;
+  onPress: () => void;
+  buttonStyle?: ViewStyle;
+  textStyle?: TextStyle;
+  type?: 'primary' | 'secondary';
+  showLeftIcon?: boolean;
+  showRightIcon?: boolean;
+}
+
+const CustomButton: React.FC<CustomButtonProps> = ({
   title,
   onPress,
   buttonStyle,
   textStyle,
   type = 'primary',
-  showLeftIcon, 
+  showLeftIcon,
   showRightIcon,
 }) => (
   <TouchableOpacity
@@ -27,7 +43,7 @@ const CustomButton = ({
     </Text>
     {showRightIcon && (
       <Icon
-        name="arrow-forward" 
+        name="arrow-forward"
         size={20}
         color={styles[`${type}ButtonText`].color}
         style={styles.iconRight}
@@ -51,7 +67,7 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: 'rgba(218, 94, 66, 0.08)',
   },
-  buttonText: {
+  text: {
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -70,4 +86,3 @@ const styles = StyleSheet.create({
 });
 
 export default CustomButton;
-

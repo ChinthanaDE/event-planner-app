@@ -5,11 +5,21 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Animated,
+  TextInputProps,
+  ViewStyle,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const CustomTextInput = ({
+interface CustomTextInputProps extends TextInputProps {
+  label: string;
+  icon?: React.ReactNode;
+  style?: ViewStyle;
+  error?: string;
+  errorText?: string;
+  touched?: boolean;
+}
+
+const CustomTextInput: React.FC<CustomTextInputProps> = ({
   label,
   value,
   icon,
@@ -32,7 +42,7 @@ const CustomTextInput = ({
     setIsFocused(true);
   };
 
-  const handleBlur = e => {
+  const handleBlur = (e: any) => {
     setIsFocused(false);
     onBlur && onBlur(e);
   };
