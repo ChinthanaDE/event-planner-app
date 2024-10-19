@@ -1,7 +1,15 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {auth, firestore, storage} from '../../utils/firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getErrorMessage} from '../../utils/firebaseError';
+import {FirebaseAuthTypes} from '@react-native-firebase/auth';
+import {AppDispatch, RootState} from '../store';
+import {
+  AuthState,
+  PersonalInfo,
+  ProfileImagePayload,
+  RegistrationCompletedPayload,
+} from '../../types/auth';
 
 /**
  * Initial state for the authentication slice.
@@ -17,7 +25,7 @@ import {getErrorMessage} from '../../utils/firebaseError';
  * @property {Object|null} personalInfo - An object containing the user's personal information or `null` if not available.
  * @property {boolean} hasCompletedRegistration - A flag indicating whether the user has completed the registration process (`true`) or not (`false`).
  */
-const initialState = {
+const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   isLoading: true,
@@ -34,18 +42,26 @@ const initialState = {
  *
  * @type {Slice<AuthState>}
  */
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setUser: (state, action) => {
-      state.user = action.payload;
+    setUser: (state, action: PayloadAction<FirebaseAuthTypes.User | null>) => {
+      state.user = action.payload
+        ? {
+            uid: action.payload.uid,
+            email: action.payload.email,
+            displayName: action.payload.displayName,
+            photoURL: action.payload.photoURL,
+          }
+        : null;
       state.isAuthenticated = !!action.payload;
     },
-    setLoading: (state, action) => {
+    setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
-    setError: (state, action) => {
+    setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
     clearError: state => {
@@ -55,12 +71,12 @@ export const authSlice = createSlice({
       state.registrationStep = 2;
       state.isAuthenticated = true;
     },
-    updateProfileImage: (state, action) => {
+    updateProfileImage: (state, action: PayloadAction<ProfileImagePayload>) => {
       state.profileImage = action.payload.localUri;
       state.profileImageUrl = action.payload.downloadUrl;
       state.registrationStep = 3;
     },
-    updatePersonalInfo: (state, action) => {
+    updatePersonalInfo: (state, action: PayloadAction<PersonalInfo>) => {
       state.personalInfo = action.payload;
       state.hasCompletedRegistration = true;
       state.registrationStep = 0;
@@ -68,13 +84,14 @@ export const authSlice = createSlice({
     logout: state => {
       return initialState;
     },
-    setRegistrationCompleted: (state, action) => {
+    setRegistrationCompleted: (
+      state,
+      action: PayloadAction<RegistrationCompletedPayload>,
+    ) => {
       state.hasCompletedRegistration = true;
       state.registrationStep = 0;
-      if (action.payload) {
-        state.personalInfo = action.payload.personalInfo;
-        state.profileImageUrl = action.payload.profileImageUrl;
-      }
+      state.personalInfo = action.payload.personalInfo;
+      state.profileImageUrl = action.payload.profileImageUrl;
     },
   },
 });
@@ -91,17 +108,19 @@ export const {
   setRegistrationCompleted,
 } = authSlice.actions;
 
-const handleError = (error, dispatch) => {
+const handleError = (error: any, dispatch: AppDispatch): boolean => {
   const errorMessage = getErrorMessage(error);
   dispatch(setError(errorMessage));
   return false;
 };
+
 /**
  * Checks the current authentication state of the user.
  *
  * @returns {Function} - checks if the user is currently authenticated.
  */
-export const checkAuthState = () => async dispatch => {
+
+export const checkAuthState = () => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true));
   try {
     const user = auth().currentUser;
@@ -114,11 +133,11 @@ export const checkAuthState = () => async dispatch => {
       if (userDoc.exists) {
         const userData = userDoc.data();
 
-        if (userData.hasCompletedRegistration) {
-          const personalInfo = {
+        if (userData?.hasCompletedRegistration) {
+          const personalInfo: PersonalInfo = {
             firstName: userData.firstName || '',
             lastName: userData.lastName || '',
-            email: userData.email || user.email,
+            email: userData.email || user.email || '',
             phone: userData.phone || '',
             address: userData.address || '',
           };
@@ -126,7 +145,7 @@ export const checkAuthState = () => async dispatch => {
           dispatch(
             setRegistrationCompleted({
               personalInfo,
-              profileImageUrl: userData.profileImageUrl,
+              profileImageUrl: userData.profileImageUrl || '',
             }),
           );
           await AsyncStorage.setItem('hasCompletedRegistration', 'true');
@@ -152,6 +171,7 @@ export const checkAuthState = () => async dispatch => {
     dispatch(setLoading(false));
   }
 };
+
 /**
  * Logs in a user with their email and password.
  *
@@ -159,51 +179,48 @@ export const checkAuthState = () => async dispatch => {
  * @param {string} password - The user's password.
  * @returns {Function} - perform the login process.
  */
-export const login = (email, password) => async dispatch => {
-  dispatch(setLoading(true));
-  dispatch(clearError());
-  try {
-    const userCredential = await auth().signInWithEmailAndPassword(
-      email,
-      password,
-    );
 
-    const user = userCredential.user;
-    console.log('user', user);
-    dispatch(setUser(user));
-
-    const userDoc = await firestore().collection('users').doc(user.uid).get();
-    if (userDoc.exists) {
-      const userData = userDoc.data();
-      console.log(
-        'userData.hasCompletedRegistration',
-        userData.hasCompletedRegistration,
+export const login =
+  (email: string, password: string) => async (dispatch: AppDispatch) => {
+    dispatch(setLoading(true));
+    dispatch(clearError());
+    try {
+      const userCredential = await auth().signInWithEmailAndPassword(
+        email,
+        password,
       );
-      if (userData.hasCompletedRegistration) {
-        const personalInfo = {
-          firstName: userData.firstName || '',
-          lastName: userData.lastName || '',
-          email: userData.email || user.email,
-          phone: userData.phone || '',
-          address: userData.address || '',
-        };
+      const user = userCredential.user;
+      dispatch(setUser(user));
 
-        dispatch(
-          setRegistrationCompleted({
-            personalInfo,
-            profileImageUrl: userData.profileImageUrl,
-          }),
-        );
-        await AsyncStorage.setItem('hasCompletedRegistration', 'true');
+      const userDoc = await firestore().collection('users').doc(user.uid).get();
+      if (userDoc.exists) {
+        const userData = userDoc.data();
+        if (userData?.hasCompletedRegistration) {
+          const personalInfo: PersonalInfo = {
+            firstName: userData.firstName || '',
+            lastName: userData.lastName || '',
+            email: userData.email || user.email || '',
+            phone: userData.phone || '',
+            address: userData.address || '',
+          };
+
+          dispatch(
+            setRegistrationCompleted({
+              personalInfo,
+              profileImageUrl: userData.profileImageUrl || '',
+            }),
+          );
+          await AsyncStorage.setItem('hasCompletedRegistration', 'true');
+        }
       }
+      return true;
+    } catch (error) {
+      return handleError(error, dispatch);
+    } finally {
+      dispatch(setLoading(false));
     }
-    return true;
-  } catch (error) {
-    return handleError(error, dispatch);
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+  };
+
 /**
  * Signs up a new user with email and password.
  *
@@ -211,40 +228,43 @@ export const login = (email, password) => async dispatch => {
  * @param {string} password - The user's password.
  * @returns {Function} -  perform the signup process.
  */
-export const signup = (email, password) => async dispatch => {
-  dispatch(setLoading(true));
-  dispatch(clearError());
-  try {
-    const userCredential = await auth().createUserWithEmailAndPassword(
-      email,
-      password,
-    );
-    const user = userCredential.user;
 
-    await firestore().collection('users').doc(user.uid).set({
-      email,
-      createdAt: firestore.FieldValue.serverTimestamp(),
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-      registrationStep: 2,
-      hasCompletedRegistration: false,
-    });
+export const signup =
+  (email: string, password: string) => async (dispatch: AppDispatch) => {
+    dispatch(setLoading(true));
+    dispatch(clearError());
+    try {
+      const userCredential = await auth().createUserWithEmailAndPassword(
+        email,
+        password,
+      );
+      const user = userCredential.user;
 
-    dispatch(setUser(user));
-    dispatch(signupSuccess());
-    return true;
-  } catch (error) {
-    return handleError(error, dispatch);
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+      await firestore().collection('users').doc(user.uid).set({
+        email,
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+        registrationStep: 2,
+        hasCompletedRegistration: false,
+      });
+
+      dispatch(setUser(user));
+      dispatch(signupSuccess());
+      return true;
+    } catch (error) {
+      return handleError(error, dispatch);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
 
 /**
  * Logs out the currently authenticated user.
  *
  * @returns {Function} - perform the logout process.
  */
-export const logoutUser = () => async dispatch => {
+
+export const logoutUser = () => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true));
   try {
     await auth().signOut();
@@ -260,74 +280,78 @@ export const logoutUser = () => async dispatch => {
 
 /**
  * Uploads the user's profile image and updates the state with the image URLs.
- * 
+ *
  * This function uploads the image from a local URI to cloud storage and updates
  * the corresponding document in Firestore with the new profile image URL.
- * 
+ *
  * @param {string} imageUri - The local URI of the image to be uploaded.
  * @returns {Function} - handle the image upload process.
  */
 
-export const submitProfileImage = imageUri => async (dispatch, getState) => {
-  dispatch(setLoading(true));
-  try {
-    const {user} = getState().auth;
-    if (!user) throw new Error('No authenticated user found');
+export const submitProfileImage =
+  (imageUri: string) =>
+  async (dispatch: AppDispatch, getState: () => RootState) => {
+    dispatch(setLoading(true));
+    try {
+      const {user} = getState().auth;
+      if (!user) throw new Error('No authenticated user found');
 
-    const response = await fetch(imageUri);
-    const blob = await response.blob();
-    const imagePath = `profile_images/${user.uid}/${Date.now()}.jpg`;
-    const storageRef = storage().ref(imagePath);
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const imagePath = `profile_images/${user.uid}/${Date.now()}.jpg`;
+      const storageRef = storage().ref(imagePath);
 
-    const userDoc = await firestore().collection('users').doc(user.uid).get();
-    const oldImagePath = userDoc.data()?.profileImagePath;
-    if (oldImagePath) {
-      try {
-        await storage().ref(oldImagePath).delete();
-      } catch (error) {
-        console.warn('Error deleting old profile image:', error);
+      const userDoc = await firestore().collection('users').doc(user.uid).get();
+      const oldImagePath = userDoc.data()?.profileImagePath;
+      if (oldImagePath) {
+        try {
+          await storage().ref(oldImagePath).delete();
+        } catch (error) {
+          console.warn('Error deleting old profile image:', error);
+        }
       }
+
+      await storageRef.put(blob);
+      const downloadUrl = await storageRef.getDownloadURL();
+
+      await firestore().collection('users').doc(user.uid).update({
+        profileImageUrl: downloadUrl,
+        profileImagePath: imagePath,
+        updatedAt: firestore.FieldValue.serverTimestamp(),
+        registrationStep: 3,
+      });
+
+      await auth().currentUser?.updateProfile({
+        photoURL: downloadUrl,
+      });
+
+      dispatch(
+        updateProfileImage({
+          localUri: imageUri,
+          downloadUrl,
+        }),
+      );
+      return true;
+    } catch (error) {
+      return handleError(error, dispatch);
+    } finally {
+      dispatch(setLoading(false));
     }
-
-    await storageRef.put(blob);
-    const downloadUrl = await storageRef.getDownloadURL();
-
-    await firestore().collection('users').doc(user.uid).update({
-      profileImageUrl: downloadUrl,
-      profileImagePath: imagePath,
-      updatedAt: firestore.FieldValue.serverTimestamp(),
-      registrationStep: 3,
-    });
-
-    await user.updateProfile({
-      photoURL: downloadUrl,
-    });
-
-    dispatch(
-      updateProfileImage({
-        localUri: imageUri,
-        downloadUrl,
-      }),
-    );
-    return true;
-  } catch (error) {
-    return handleError(error, dispatch);
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
+  };
 
 /**
  * Submits the user's personal information and updates it in Firestore and Redux state.
- * 
+ *
  * This function updates the user's personal information such as name, phone, address,
  * and marks the registration process as completed.
- * 
+ *
  * @param {Object} personalInfo - The user's personal information (e.g., firstName, lastName, phone, etc.).
  * @returns {Function} - handle the personal information submission process.
  */
+
 export const submitPersonalInfo =
-  personalInfo => async (dispatch, getState) => {
+  (personalInfo: PersonalInfo) =>
+  async (dispatch: AppDispatch, getState: () => RootState) => {
     dispatch(setLoading(true));
     try {
       const {user} = getState().auth;
@@ -342,7 +366,7 @@ export const submitPersonalInfo =
           hasCompletedRegistration: true,
         });
 
-      await user.updateProfile({
+      await auth().currentUser?.updateProfile({
         displayName: `${personalInfo.firstName} ${personalInfo.lastName}`,
       });
 
@@ -358,51 +382,55 @@ export const submitPersonalInfo =
 
 /**
  * Updates both the user's personal information and profile image in Firestore and Redux state.
- * 
+ *
  * This function handles the update of the user's personal information and uploads a new profile
  * image if provided. It ensures both fields are updated and synced across Firestore and Firebase Authentication.
- * 
+ *
  * @param {Object} personalInfo - The user's personal information (e.g., firstName, lastName, etc.).
  * @param {string|null} imageUri - The local URI of the image to be uploaded, or `null` if no image change.
  * @returns {Function} - handle the combined profile update.
  */
-export const updateProfile = newData => async (dispatch, getState) => {
-  dispatch(setLoading(true));
-  try {
-    const {user} = getState().auth;
-    if (!user) throw new Error('No authenticated user found');
 
-    await firestore()
-      .collection('users')
-      .doc(user.uid)
-      .update({
-        ...newData,
-        updatedAt: firestore.FieldValue.serverTimestamp(),
-      });
-
-    if (newData.firstName && newData.lastName) {
-      await user.updateProfile({
-        displayName: `${newData.firstName} ${newData.lastName}`,
-      });
-    }
-
-    dispatch(updatePersonalInfo(newData));
-    return true;
-  } catch (error) {
-    return handleError(error, dispatch);
-  } finally {
-    dispatch(setLoading(false));
-  }
-};
-
-export const updateUserProfile =
-  (personalInfo, imageUri) => async (dispatch, getState) => {
+export const updateProfile =
+  (newData: Partial<PersonalInfo>) =>
+  async (dispatch: AppDispatch, getState: () => RootState) => {
     dispatch(setLoading(true));
     try {
       const {user} = getState().auth;
       if (!user) throw new Error('No authenticated user found');
 
-      let profileData = {
+      await firestore()
+        .collection('users')
+        .doc(user.uid)
+        .update({
+          ...newData,
+          updatedAt: firestore.FieldValue.serverTimestamp(),
+        });
+
+      if (newData.firstName && newData.lastName) {
+        await auth().currentUser?.updateProfile({
+          displayName: `${newData.firstName} ${newData.lastName}`,
+        });
+      }
+
+      dispatch(updatePersonalInfo(newData as PersonalInfo));
+      return true;
+    } catch (error) {
+      return handleError(error, dispatch);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+export const updateUserProfile =
+  (personalInfo: PersonalInfo, imageUri?: string) =>
+  async (dispatch: AppDispatch, getState: () => RootState) => {
+    dispatch(setLoading(true));
+    try {
+      const {user} = getState().auth;
+      if (!user) throw new Error('No authenticated user found');
+
+      let profileData: any = {
         ...personalInfo,
         updatedAt: firestore.FieldValue.serverTimestamp(),
       };
@@ -432,7 +460,7 @@ export const updateUserProfile =
         profileData.profileImageUrl = downloadUrl;
         profileData.profileImagePath = imagePath;
 
-        await user.updateProfile({
+        await auth().currentUser?.updateProfile({
           photoURL: downloadUrl,
         });
 
@@ -446,7 +474,7 @@ export const updateUserProfile =
 
       await firestore().collection('users').doc(user.uid).update(profileData);
 
-      await user.updateProfile({
+      await auth().currentUser?.updateProfile({
         displayName: `${personalInfo.firstName} ${personalInfo.lastName}`,
       });
 
@@ -459,15 +487,18 @@ export const updateUserProfile =
     }
   };
 
-export const selectUser = state => state.auth.user;
-export const selectIsAuthenticated = state => state.auth.isAuthenticated;
-export const selectIsLoading = state => state.auth.isLoading;
-export const selectError = state => state.auth.error;
-export const selectRegistrationStep = state => state.auth.registrationStep;
-export const selectProfileImage = state => state.auth.profileImage;
-export const selectProfileImageUrl = state => state.auth.profileImageUrl;
-export const selectPersonalInfo = state => state.auth.personalInfo;
-export const selectHasCompletedRegistration = state =>
+export const selectUser = (state: RootState) => state.auth.user;
+export const selectIsAuthenticated = (state: RootState) =>
+  state.auth.isAuthenticated;
+export const selectIsLoading = (state: RootState) => state.auth.isLoading;
+export const selectError = (state: RootState) => state.auth.error;
+export const selectRegistrationStep = (state: RootState) =>
+  state.auth.registrationStep;
+export const selectProfileImage = (state: RootState) => state.auth.profileImage;
+export const selectProfileImageUrl = (state: RootState) =>
+  state.auth.profileImageUrl;
+export const selectPersonalInfo = (state: RootState) => state.auth.personalInfo;
+export const selectHasCompletedRegistration = (state: RootState) =>
   state.auth.hasCompletedRegistration;
 
 export default authSlice.reducer;
