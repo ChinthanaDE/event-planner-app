@@ -15,11 +15,22 @@ import CustomTextInput from '../../../components/CustomTextInput';
 import CustomButton from '../../../components/CustomButton';
 import {submitPersonalInfo, clearError} from '../../../redux/slices/authSlice';
 import {PERSONAL_INFO, PERSONAL_INFO_SUB} from '../../../constants/constants';
-import {PersonalInfoSchema} from '../../../utils/validationSchema'
+import {PersonalInfoSchema} from '../../../utils/validationSchema';
+import {AppDispatch, RootState} from '../../../redux/store';
+import {AuthStackNavigationProp} from '../../../types/navigation';
+import {PersonalInfo} from '../../../types/auth';
 
-const PersonalInfoScreen = ({navigation}) => {
-  const dispatch = useDispatch();
-  const {personalInfo, isLoading, error} = useSelector(state => state.auth);
+interface PersonalInfoScreenProps {
+  navigation: AuthStackNavigationProp<'PersonalInfo'>;
+}
+
+const PersonalInfoScreen: React.FC<PersonalInfoScreenProps> = ({
+  navigation,
+}) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const {personalInfo, isLoading, error} = useSelector(
+    (state: RootState) => state.auth,
+  );
 
   useEffect(() => {
     return () => {
@@ -36,7 +47,7 @@ const PersonalInfoScreen = ({navigation}) => {
           <Text style={styles.title}>{PERSONAL_INFO}</Text>
           <Text style={styles.subtitle}>{PERSONAL_INFO_SUB}</Text>
 
-          <Formik
+          <Formik<PersonalInfo>
             validationSchema={PersonalInfoSchema}
             initialValues={{
               firstName: personalInfo?.firstName || '',
