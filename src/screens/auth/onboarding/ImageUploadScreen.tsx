@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
+import {StackNavigationProp} from '@react-navigation/stack';
 import CustomButton from '../../../components/CustomButton';
 import ProfileImage from '../../../components/ProfileImageComponent';
 import useProfileImage from '../../../hooks/useProfileImage';
@@ -16,12 +17,22 @@ import {
   clearError,
 } from '../../../redux/slices/authSlice';
 import {WELCOME_TITLE, IMAGE_UPLOAD_SUB} from '../../../constants/constants';
+import {AppDispatch, RootState} from '../../../redux/store';
+import {AuthStackParamList} from '../../../types/navigation';
 
-const ImageUploadScreen = ({navigation}) => {
-  const dispatch = useDispatch();
+type ImageUploadScreenNavigationProp = StackNavigationProp<
+  AuthStackParamList,
+  'ImageUpload'
+>;
+
+interface ImageUploadScreenProps {
+  navigation: ImageUploadScreenNavigationProp;
+}
+
+const ImageUploadScreen: React.FC<ImageUploadScreenProps> = ({navigation}) => {
+  const dispatch = useDispatch<AppDispatch>();
   const {imageUri, selectImage} = useProfileImage();
-  const {isLoading, error} = useSelector(state => state.auth);
-  console.log('Image URI in ImageUploadScreen:', imageUri);
+  const {isLoading, error} = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     return () => {
@@ -39,6 +50,10 @@ const ImageUploadScreen = ({navigation}) => {
     }
   };
 
+  const handleImagePress = () => {
+    selectImage();
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContent}>
@@ -54,13 +69,17 @@ const ImageUploadScreen = ({navigation}) => {
             imageUri={imageUri}
             size={120}
             showCamera={true}
-            onImagePress={selectImage}
+            onImagePress={handleImagePress}
           />
         </View>
 
         {isLoading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#Db2424" />
+            <ActivityIndicator
+              size="large"
+              color="#Db2424"
+              testID="loading-indicator"
+            />
           </View>
         )}
 
