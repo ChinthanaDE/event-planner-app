@@ -4,27 +4,40 @@ import {
   Text,
   FlatList,
   StyleSheet,
-  ActivityIndicator,
   TouchableOpacity,
   SafeAreaView,
+  Image,
 } from 'react-native';
-import {useRoute} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import eventApi from '../../../services/eventApi';
+import {getComments} from '../../../services/eventApi';
 import CustomHeader from '../../../components/CustomHeader';
 import {BackButton, HeaderTitle} from '../../../components/HeaderComponents';
+import PostCardSkeleton from '../../../components/skeletons/PostCardSkeleton';
+import {AppEvent} from '../../../types/event';
+import {
+  EventStackNavigationProp,
+  EventStackRouteProp,
+} from '../../../types/navigation';
 
-const PostListScreen = ({navigation}) => {
-  const route = useRoute();
-  const {events} = route.params || {};
-  const [posts, setPosts] = useState(events || []);
-  const [comments, setComments] = useState({});
-  const [visibleComments, setVisibleComments] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+type PostListScreenNavigationProp = EventStackNavigationProp<'PostList'>;
+type PostListScreenRouteProp = EventStackRouteProp<'PostList'>;
+
+const PostListScreen: React.FC = () => {
+  const navigation = useNavigation<PostListScreenNavigationProp>();
+  const route = useRoute<PostListScreenRouteProp>();
+
+  const {events} = route.params;
+  const [posts, setPosts] = useState<AppEvent[]>(events);
+  const [comments, setComments] = useState<Record<number, any[]>>({});
+  const [visibleComments, setVisibleComments] = useState<
+    Record<number, boolean>
+  >({});
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!events || events.length === 0) {
+    if (events.length === 0) {
       setError('No events data received');
     } else {
       fetchComments();
@@ -34,14 +47,14 @@ const PostListScreen = ({navigation}) => {
   const fetchComments = async () => {
     setLoading(true);
     try {
-      const response = await eventApi.get('/comments');
+      const response = await getComments();
       const commentsByPost = response.data.reduce((acc, comment) => {
         if (!acc[comment.postId]) {
           acc[comment.postId] = [];
         }
         acc[comment.postId].push(comment);
         return acc;
-      }, {});
+      }, {} as Record<number, any[]>);
       setComments(commentsByPost);
     } catch (error) {
       console.error('Error fetching comments:', error);
@@ -50,17 +63,22 @@ const PostListScreen = ({navigation}) => {
     setLoading(false);
   };
 
-  const toggleComments = postId => {
+  const toggleComments = (postId: number) => {
     setVisibleComments(prevVisible => ({
       ...prevVisible,
       [postId]: !prevVisible[postId],
     }));
   };
 
-  const renderPost = ({item}) => (
-    <View style={styles.postContainer}>
-      <Text style={styles.postTitle}>{item.title}</Text>
-      <Text style={styles.postBody}>{item.body}</Text>
+  const renderPostItem = ({item}: {item: AppEvent}) => (
+    <View style={styles.cardContainer}>
+      <Image source={{uri: item.thumbnailUrl}} style={styles.postImage} />
+
+      <View style={styles.textContent}>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.body}>{item.body}</Text>
+      </View>
+
       <TouchableOpacity
         style={styles.commentsButton}
         onPress={() => toggleComments(item.id)}>
@@ -68,11 +86,12 @@ const PostListScreen = ({navigation}) => {
           {visibleComments[item.id] ? 'Hide Comments' : 'Show Comments'}
         </Text>
       </TouchableOpacity>
+
       {visibleComments[item.id] && renderComments(item.id)}
     </View>
   );
 
-  const renderComments = postId => (
+  const renderComments = (postId: number) => (
     <View style={styles.commentsContainer}>
       {comments[postId]?.map(comment => (
         <View key={comment.id} style={styles.commentItem}>
@@ -80,7 +99,7 @@ const PostListScreen = ({navigation}) => {
             <Text style={styles.commentName}>{comment.name}</Text>
           </View>
           <Text style={styles.commentEmail}>{comment.email}</Text>
-          <View style={{flexDirection: 'row', margin: 10}}>
+          <View style={styles.commentBodyContainer}>
             <Ionicons name="chatbubble-outline" size={20} color="#E97451" />
             <Text style={styles.commentBody}>{comment.body}</Text>
           </View>
@@ -89,19 +108,39 @@ const PostListScreen = ({navigation}) => {
     </View>
   );
 
+  const renderPostCardSkeletons = () => (
+    <FlatList
+      data={[1, 2, 3]}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      renderItem={() => <PostCardSkeleton />}
+      keyExtractor={item => item.toString()}
+    />
+  );
+
   if (loading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" color="#E97451" />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <CustomHeader
+          leftComponent={<BackButton onPress={() => navigation.goBack()} />}
+          centerComponent={<HeaderTitle title="Post List" />}
+        />
+        {renderPostCardSkeletons()}
+      </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <CustomHeader
+          leftComponent={<BackButton onPress={() => navigation.goBack()} />}
+          centerComponent={<HeaderTitle title="Post List" />}
+        />
+        <View style={styles.centerContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -113,7 +152,7 @@ const PostListScreen = ({navigation}) => {
       />
       <FlatList
         data={posts}
-        renderItem={renderPost}
+        renderItem={renderPostItem}
         keyExtractor={item => item.id.toString()}
         ListEmptyComponent={
           <Text style={styles.emptyText}>No posts available</Text>
@@ -126,49 +165,53 @@ const PostListScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F9F9F9',
   },
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  cardContainer: {
     backgroundColor: '#fff',
-  },
-  postContainer: {
-    backgroundColor: 'white',
+    margin: 10,
     borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
-    elevation: 3,
-    marginHorizontal: 10,
+    elevation: 5,
+    overflow: 'hidden',
   },
-  postTitle: {
-    fontSize: 18,
+  postImage: {
+    width: '100%',
+    height: 200,
+  },
+  textContent: {
+    padding: 10,
+    backgroundColor: '#fff',
+  },
+  title: {
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#000',
+    color: '#333',
+    marginBottom: 5,
   },
-  postBody: {
+  body: {
     fontSize: 14,
-    color: '#000',
-    marginBottom: 12,
+    color: '#666',
   },
   commentsButton: {
     backgroundColor: '#E97451',
-    padding: 8,
-    borderRadius: 4,
+    padding: 10,
+    borderRadius: 20,
     alignSelf: 'flex-end',
+    marginRight: 10,
+    marginBottom: 10,
   },
   commentsButtonText: {
-    color: 'white',
+    color: '#FFFFFF',
     fontWeight: 'bold',
+    fontSize: 16,
   },
   commentsContainer: {
-    marginTop: 12,
+    paddingHorizontal: 16,
+    paddingTop: 8,
   },
   commentItem: {
     backgroundColor: '#f0f0f0',
@@ -185,14 +228,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#333',
-    marginLeft: 8,
   },
   commentEmail: {
     fontSize: 12,
     fontStyle: 'italic',
     color: '#666',
     marginBottom: 4,
-    marginLeft: 8,
+  },
+  commentBodyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
   },
   commentBody: {
     fontSize: 14,
@@ -209,6 +255,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginTop: 20,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

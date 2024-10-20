@@ -50,6 +50,16 @@ export type GetUsersResponse = {
     bs: string;
   };
 }[];
+
+export type GetCommentsResponse = {
+  postId: number;
+  id: number;
+  name: string;
+  email: string;
+  body: string;
+}[];
+
 export const getPosts = () => eventApi.get<GetPostsResponse>('/posts');
 export const getPhotos = () => eventApi.get<GetPhotosResponse>('/photos');
 export const getUsers = () => eventApi.get<GetUsersResponse>('/users');
+export const getComments = () => eventApi.get<GetCommentsResponse>('/comments');

@@ -60,6 +60,9 @@ export type EventStackNavigationProp<T extends keyof EventStackParamList> =
     TabNavigationProp<'Events'>
   >;
 
+export type EventStackRouteProp<T extends keyof EventStackParamList> =
+  RouteProp<EventStackParamList, T>;
+
 export type ProfileStackNavigationProp<T extends keyof ProfileStackParamList> =
   CompositeNavigationProp<
     StackNavigationProp<ProfileStackParamList, T>,
