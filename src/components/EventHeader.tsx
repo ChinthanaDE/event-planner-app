@@ -1,38 +1,30 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, Dimensions, Animated } from 'react-native';
+import React from 'react';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
+import {useImageCarousel} from '../hooks/useImageCarousel';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
-const EventHeader = ({ images, eventName, location }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  useRef(new Animated.Value(0)).current;
-  const scrollViewRef = useRef(null);
+interface EventHeaderProps {
+  images: string[];
+  eventName: string;
+  location: string;
+}
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (currentIndex < images.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-        scrollViewRef.current?.scrollTo({
-          x: (currentIndex + 1) * width,
-          animated: true,
-        });
-      } else {
-        setCurrentIndex(0);
-        scrollViewRef.current?.scrollTo({
-          x: 0,
-          animated: true,
-        });
-      }
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, [currentIndex, images.length]);
-
-  const handleScroll = (event) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / width);
-    setCurrentIndex(index);
-  };
+const EventHeader: React.FC<EventHeaderProps> = ({
+  images,
+  eventName,
+  location,
+}) => {
+  const {currentIndex, scrollViewRef, handleScroll} = useImageCarousel({
+    images,
+  });
 
   return (
     <View style={styles.headerContainer}>
@@ -43,13 +35,12 @@ const EventHeader = ({ images, eventName, location }) => {
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
         onScroll={handleScroll}
-        onMomentumScrollEnd={handleScroll}
-      >
+        onMomentumScrollEnd={handleScroll}>
         {images.map((image, index) => (
-          <Image key={index} source={{ uri: image }} style={styles.headerImage} />
+          <Image key={index} source={{uri: image}} style={styles.headerImage} />
         ))}
       </ScrollView>
-      
+
       <View style={styles.imageCounter}>
         <Text style={styles.imageCounterText}>
           {`${currentIndex + 1}/${images.length}`}
@@ -92,7 +83,7 @@ const styles = StyleSheet.create({
     bottom: 100,
     backgroundColor: '#fff',
     paddingHorizontal: 12,
-    paddingVertical:8
+    paddingVertical: 8,
   },
   imageCounterText: {
     color: '#000',
