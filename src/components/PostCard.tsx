@@ -1,7 +1,25 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ViewStyle,
+  TextStyle,
+  ImageStyle,
+} from 'react-native';
 
-const PostCard = ({post}) => {
+interface Post {
+  thumbnailUrl: string;
+  title: string;
+  body?: string;
+}
+
+interface PostCardProps {
+  post: Post;
+}
+
+const PostCard: React.FC<PostCardProps> = ({post}) => {
   console.log('post', post);
   return (
     <View style={styles.cardContainer}>
@@ -11,7 +29,9 @@ const PostCard = ({post}) => {
         resizeMode="cover"
       />
       <View style={styles.postContent}>
-        <Text style={styles.postTitle} numberOfLines={1}>{post.title}</Text>
+        <Text style={styles.postTitle} numberOfLines={1}>
+          {post.title}
+        </Text>
         <Text style={styles.postDescription} numberOfLines={2}>
           {post.body || 'No description available'}
         </Text>
@@ -20,7 +40,15 @@ const PostCard = ({post}) => {
   );
 };
 
-const styles = StyleSheet.create({
+interface Styles {
+  cardContainer: ViewStyle;
+  postImage: ImageStyle;
+  postContent: ViewStyle;
+  postTitle: TextStyle;
+  postDescription: TextStyle;
+}
+
+const styles = StyleSheet.create<Styles>({
   cardContainer: {
     width: 300,
     backgroundColor: 'white',
