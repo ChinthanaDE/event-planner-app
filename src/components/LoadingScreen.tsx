@@ -1,8 +1,19 @@
 import React from 'react';
-import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
+import {
+  View,
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 
-const LoadingScreen = ({ 
-  message = 'Loading...' 
+interface LoadingScreenProps {
+  message?: string;
+}
+
+const LoadingScreen: React.FC<LoadingScreenProps> = ({
+  message = 'Loading...',
 }) => {
   return (
     <View style={styles.container}>
@@ -12,7 +23,12 @@ const LoadingScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+interface Styles {
+  container: ViewStyle;
+  message: TextStyle;
+}
+
+const styles = StyleSheet.create<Styles>({
   container: {
     flex: 1,
     justifyContent: 'center',
