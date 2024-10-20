@@ -1,4 +1,4 @@
-import { configureStore } from '@reduxjs/toolkit';
+import {configureStore} from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -7,7 +7,7 @@ const store = configureStore({
   reducer: {
     auth: authReducer,
   },
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: false,
     }),
