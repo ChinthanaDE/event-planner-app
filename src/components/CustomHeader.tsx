@@ -1,7 +1,13 @@
 import React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, ViewStyle} from 'react-native';
 
-const CustomHeader = ({
+interface CustomHeaderProps {
+  leftComponent: React.ReactNode;
+  centerComponent?: React.ReactNode;
+  rightComponent?: React.ReactNode;
+}
+
+const CustomHeader: React.FC<CustomHeaderProps> = ({
   leftComponent,
   centerComponent = null,
   rightComponent = null,
@@ -15,7 +21,14 @@ const CustomHeader = ({
   );
 };
 
-const styles = StyleSheet.create({
+interface Styles {
+  header: ViewStyle;
+  leftContainer: ViewStyle;
+  centerContainer: ViewStyle;
+  rightContainer: ViewStyle;
+}
+
+const styles = StyleSheet.create<Styles>({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
