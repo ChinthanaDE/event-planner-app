@@ -23,13 +23,20 @@ import {
 } from '../../../redux/slices/authSlice';
 import useProfileImage from '../../../hooks/useProfileImage';
 import {POST_LIST_TITLE} from '../../../constants/constants';
-import {PersonalInfoSchema} from '../../../utils/validationSchema'
+import {PersonalInfoSchema} from '../../../utils/validationSchema';
+import {AppDispatch, RootState} from '../../../redux/store';
+import {ProfileStackNavigationProp} from '../../../types/navigation';
+import {ProfileFormValues} from '../../../types/profile';
 
-const ProfileEditScreen = ({navigation}) => {
-  const dispatch = useDispatch();
+interface ProfileEditScreenProps {
+  navigation: ProfileStackNavigationProp<'UserEditProfile'>;
+}
+
+const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({navigation}) => {
+  const dispatch = useDispatch<AppDispatch>();
   const {imageUri, selectImage} = useProfileImage();
   const {profileImageUrl, personalInfo, isLoading, error} = useSelector(
-    state => state.auth,
+    (state: RootState) => state.auth,
   );
 
   useEffect(() => {
@@ -38,7 +45,7 @@ const ProfileEditScreen = ({navigation}) => {
     };
   }, [dispatch]);
 
-  const handleSave = async values => {
+  const handleSave = async (values: ProfileFormValues) => {
     if (imageUri) {
       try {
         const success = await dispatch(updateUserProfile(values, imageUri));
@@ -51,6 +58,14 @@ const ProfileEditScreen = ({navigation}) => {
     } else {
       dispatch(setError('Please select an image first.'));
     }
+  };
+
+  const initialValues: ProfileFormValues = {
+    firstName: personalInfo?.firstName || '',
+    lastName: personalInfo?.lastName || '',
+    email: personalInfo?.email || '',
+    phone: personalInfo?.phone || '',
+    address: personalInfo?.address || '',
   };
 
   return (
@@ -69,13 +84,7 @@ const ProfileEditScreen = ({navigation}) => {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardAvoidingView}>
           <Formik
-            initialValues={{
-              firstName: personalInfo?.firstName || '',
-              lastName: personalInfo?.lastName || '',
-              email: personalInfo?.email || '',
-              phone: personalInfo?.phone || '',
-              address: personalInfo?.address || '',
-            }}
+            initialValues={initialValues}
             validationSchema={PersonalInfoSchema}
             onSubmit={handleSave}>
             {({handleChange, handleSubmit, values, errors, touched}) => (

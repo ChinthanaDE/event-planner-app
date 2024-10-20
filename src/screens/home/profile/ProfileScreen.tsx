@@ -9,12 +9,15 @@ import ProfileImage from '../../../components/ProfileImageComponent';
 import CustomTextInput from '../../../components/CustomTextInput';
 import CustomButton from '../../../components/CustomButton';
 import {checkAuthState} from '../../../redux/slices/authSlice';
+import {AppDispatch, RootState} from '../../../redux/store';
+import {ProfileStackNavigationProp} from '../../../types/navigation';
+import {Profile, ProfileFormValues} from '../../../types/profile';
 
-const ProfileScreen = () => {
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
+const ProfileScreen: React.FC = () => {
+  const navigation = useNavigation<ProfileStackNavigationProp<'UserProfile'>>();
+  const dispatch = useDispatch<AppDispatch>();
   const {profileImageUrl, personalInfo, isLoading} = useSelector(
-    state => state.auth,
+    (state: RootState) => state.auth,
   );
 
   useEffect(() => {
@@ -23,6 +26,14 @@ const ProfileScreen = () => {
 
   const handleEdit = () => {
     navigation.navigate('UserEditProfile');
+  };
+
+  const initialValues: ProfileFormValues = {
+    firstName: personalInfo?.firstName || '',
+    lastName: personalInfo?.lastName || '',
+    email: personalInfo?.email || '',
+    phone: personalInfo?.phone || '',
+    address: personalInfo?.address || '',
   };
 
   return (
@@ -46,13 +57,7 @@ const ProfileScreen = () => {
             </View>
 
             <Formik
-              initialValues={{
-                firstName: personalInfo?.firstName || '',
-                lastName: personalInfo?.lastName || '',
-                email: personalInfo?.email || '',
-                phone: personalInfo?.phone || '',
-                address: personalInfo?.address || '',
-              }}
+              initialValues={initialValues}
               enableReinitialize
               onSubmit={values => console.log(values)}>
               {({values}) => (

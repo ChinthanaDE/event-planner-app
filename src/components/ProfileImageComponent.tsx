@@ -13,7 +13,7 @@ interface ProfileImageProps {
   imageUri?: string | null;
   size?: number;
   showCamera?: boolean;
-  onImagePress: () => void;
+  onImagePress?: () => void;
 }
 
 const ProfileImage: React.FC<ProfileImageProps> = ({
