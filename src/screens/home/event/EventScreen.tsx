@@ -1,25 +1,41 @@
 import React from 'react';
 import {
   View,
+  SafeAreaView,
   Text,
+  StyleSheet,
   ScrollView,
   FlatList,
-  StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import {StackNavigationProp} from '@react-navigation/stack';
 import {useNavigation} from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import EventHeader from '../../../components/EventHeader';
 import Organizer from '../../../components/Organizer';
 import PostCard from '../../../components/PostCard';
-import {useFetchEvents} from '../../../hooks/useFetchEvents';
-import {useFetchOrganizers} from '../../../hooks/useFetchOrganizers';
 import EventHeaderSkeleton from '../../../components/skeletons/EventHeaderSkeleton';
 import OrganizerSkeleton from '../../../components/skeletons/OrganizerSkeleton';
 import PostCardSkeleton from '../../../components/skeletons/PostCardSkeleton';
+import {useFetchEvents} from '../../../hooks/useFetchEvents';
+import {useFetchOrganizers} from '../../../hooks/useFetchOrganizers';
+import {AppEvent} from '../../../types/event';
+import {
+  EventStackParamList,
+  RootStackParamList,
+} from '../../../types/navigation';
 
-const EventScreen = ({Event}) => {
-  const navigation = useNavigation();
+type EventScreenNavigationProp = StackNavigationProp<
+  EventStackParamList & RootStackParamList,
+  'EventList'
+>;
+
+interface EventScreenProps {
+  navigation: EventScreenNavigationProp;
+}
+
+const EventScreen: React.FC<EventScreenProps> = () => {
+  const navigation = useNavigation<EventScreenNavigationProp>();
   const {events, loading: eventsLoading, error: eventsError} = useFetchEvents();
   const {
     organizers,
@@ -31,7 +47,7 @@ const EventScreen = ({Event}) => {
     navigation.navigate('PostList', {events: events});
   };
 
-  const renderPostItem = ({item}) => (
+  const renderPostItem = ({item}: {item: AppEvent}) => (
     <View style={styles.cardWrapper}>
       <PostCard post={item} />
     </View>
@@ -94,7 +110,6 @@ const EventScreen = ({Event}) => {
             ))
           )}
 
-          {/* Post Section */}
           <View style={styles.header}>
             <Text style={styles.postSectionTitle}>Photos</Text>
             <View style={styles.viewAllContainer}>

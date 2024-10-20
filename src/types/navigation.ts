@@ -2,6 +2,7 @@ import {DrawerNavigationProp as RNDrawerNavigationProp} from '@react-navigation/
 import {StackNavigationProp} from '@react-navigation/stack';
 import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 import {CompositeNavigationProp, RouteProp} from '@react-navigation/native';
+import {AppEvent} from './event';
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -12,7 +13,7 @@ export type AuthStackParamList = {
 
 export type EventStackParamList = {
   EventList: undefined;
-  PostList: undefined;
+  PostList: {events: AppEvent[]};
 };
 
 export type ProfileStackParamList = {
