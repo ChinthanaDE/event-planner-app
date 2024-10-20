@@ -1,31 +1,43 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
-import {DrawerContentScrollView} from '@react-navigation/drawer';
+import {
+  DrawerContentScrollView,
+  DrawerContentComponentProps,
+} from '@react-navigation/drawer';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {logoutUser} from '../redux/slices/authSlice';
+import {
+  logoutUser,
+  selectProfileImageUrl,
+  selectPersonalInfo,
+} from '../redux/slices/authSlice';
+import {AppDispatch} from '../redux/store';
 
-const CustomDrawerContentView = props => {
-  const dispatch = useDispatch();
-  const {profileImageUrl, personalInfo, isLoading} = useSelector(
-    state => state.auth,
-  );
+const CustomDrawerContentView: React.FC<
+  DrawerContentComponentProps
+> = props => {
+  const dispatch = useDispatch<AppDispatch>();
+  const profileImageUrl = useSelector(selectProfileImageUrl);
+  const personalInfo = useSelector(selectPersonalInfo);
+
   return (
     <DrawerContentScrollView
       {...props}
       contentContainerStyle={styles.drawerContainer}>
       <View style={styles.profileSection}>
-     <Image source={{uri: profileImageUrl}} style={styles.profileImage} />
+        <Image
+          source={{uri: profileImageUrl || undefined}}
+          style={styles.profileImage}
+        />
         <View style={styles.profileDetails}>
-          <Text
-            style={
-              styles.profileName
-            }>{`${personalInfo?.firstName} ${personalInfo?.lastName}`}</Text>
+          <Text style={styles.profileName}>
+            {`${personalInfo?.firstName} ${personalInfo?.lastName}`}
+          </Text>
           <Text style={styles.profileEmail}>{personalInfo?.email}</Text>
         </View>
       </View>
       <View style={styles.drawerOptions}>
-        <View style={styles.logoutContainer}>
+        <View>
           <TouchableOpacity
             onPress={() => dispatch(logoutUser())}
             style={styles.logoutButton}>
@@ -83,9 +95,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 10,
-  },
-  logoutContainer: {
-    marginTop: 'inherit',
   },
   logoutButton: {
     flexDirection: 'row',
