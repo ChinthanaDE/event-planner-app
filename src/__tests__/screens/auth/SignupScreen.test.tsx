@@ -65,8 +65,9 @@ describe('LoginScreen', () => {
     expect(getByText('Welcome to your Portal')).toBeTruthy();
     expect(getByPlaceholderText('Enter Email')).toBeTruthy();
     expect(getByPlaceholderText('Enter Password')).toBeTruthy();
-    expect(getByText('Login')).toBeTruthy();
+    expect(getByPlaceholderText('Confirm Password')).toBeTruthy();
     expect(getByText('Sign Up')).toBeTruthy();
+    expect(getByText('Login')).toBeTruthy();
   });
 
   it('displays error message when login fails', () => {
