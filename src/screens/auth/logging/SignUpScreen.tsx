@@ -15,20 +15,11 @@ import {signup, setError, clearError} from '../../../redux/slices/authSlice';
 import {WELCOME_TITLE, WELCOME_SUBTITLE} from '../../../constants/constants';
 import {SignUpSchema} from '../../../utils/validationSchema';
 import {AppDispatch, RootState} from '../../../redux/store';
-import {
-  AuthStackParamList,
-  RootStackParamList,
-} from '../../../types/navigation';
-import {StackNavigationProp} from '@react-navigation/stack';
+import {CombinedNavigationProp} from '../../../types/navigation';
 
-type SignUpScreenNavigationProp = StackNavigationProp<
-  AuthStackParamList & RootStackParamList,
-  'SignUp'
->;
-
-interface SignUpScreenProps {
-  navigation: SignUpScreenNavigationProp;
-}
+type SignUpScreenProps = {
+  navigation: CombinedNavigationProp;
+};
 
 interface SignUpValues {
   email: string;
