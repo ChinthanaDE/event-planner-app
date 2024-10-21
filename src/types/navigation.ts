@@ -11,6 +11,10 @@ export type AuthStackParamList = {
   PersonalInfo: undefined;
 };
 
+export type CombinedNavigationProp = StackNavigationProp<
+  AuthStackParamList & RootStackParamList
+>;
+
 export type EventStackParamList = {
   EventList: undefined;
   PostList: {events: AppEvent[]};

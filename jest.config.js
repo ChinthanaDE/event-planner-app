@@ -17,5 +17,10 @@ module.exports = {
     '<rootDir>/android/',
     '<rootDir>/ios/',
   ],
-  testMatch: ['**/__tests__/**/*.test.js'],
+  // Updated testMatch to include TypeScript test files
+  testMatch: [
+    '**/__tests__/**/*.test.js',
+    '**/__tests__/**/*.test.ts',
+    '**/__tests__/**/*.test.tsx',
+  ],
 };

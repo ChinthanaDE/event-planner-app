@@ -22,19 +22,11 @@ import {
 } from '../../../constants/constants';
 import {LoginSchema} from '../../../utils/validationSchema';
 import {AppDispatch, RootState} from '../../../redux/store';
-import {
-  AuthStackParamList,
-  RootStackParamList,
-} from '../../../types/navigation';
+import {CombinedNavigationProp} from '../../../types/navigation';
 
-type LoginScreenNavigationProp = StackNavigationProp<
-  AuthStackParamList & RootStackParamList,
-  'Login'
->;
-
-interface LoginScreenProps {
-  navigation: LoginScreenNavigationProp;
-}
+type LoginScreenProps = {
+  navigation: CombinedNavigationProp;
+};
 
 const LoginScreen: React.FC<LoginScreenProps> = ({navigation}) => {
   const dispatch = useDispatch<AppDispatch>();
